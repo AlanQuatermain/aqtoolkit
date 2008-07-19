@@ -101,7 +101,7 @@
 	id object = [_objectStack lastObject];
 
 	Class cls = [_classProvider classForTagName: [element name]];
-	if ( cls != nil )
+	if ( cls != Nil )
 	{
 		// create an instance of this class and push it onto the stack
 		// note that this doesn't (yet) include any support for uniquing,
@@ -109,11 +109,14 @@
 		// (at least for the moment)
 		
 		// check whether the parent (if it exists) has a matching property
+		// which is of the correct object type
 		if ( object != nil )
 		{
 			NSString * propName = [self propertyNameForElementName: [element name]];
 			if ( [object hasPropertyNamed: propName] )
 			{
+				// get the type code for the property, and request a value
+				// of that type
 				
 			}
 		}
