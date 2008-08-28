@@ -21,8 +21,7 @@
 
 #import <Foundation/Foundation.h>
 #import "NSObject+Properties.h"
-
-static NSDictionary * _AQGetPropertyAttributeDictionary( objc_property_t property );
+#import "NSString+PropertyKVC.h"
 
 @implementation NSObject (AQProperties)
 
@@ -53,6 +52,14 @@ static NSDictionary * _AQGetPropertyAttributeDictionary( objc_property_t propert
 		return ( YES );
 	
 	return ( NO );
+}
+
++ (BOOL) hasPropertyForKVCKey: (NSString *) key
+{
+    if ( [self hasPropertyNamed: key] )
+        return ( YES );
+
+    return ( [self hasPropertyNamed: [key propertyStyleString]] );
 }
 
 + (SEL) getterForPropertyNamed: (NSString *) name
@@ -147,6 +154,16 @@ static NSDictionary * _AQGetPropertyAttributeDictionary( objc_property_t propert
 	return ( [[self class] hasPropertyNamed: name ofType: type] );
 }
 
+- (BOOL) hasPropertyForKVCKey: (NSString *) key
+{
+    return ( [[self class] hasPropertyForKVCKey: key] );
+}
+
+- (const char *) typeOfPropertyNamed: (NString *) name
+{
+	return ( [[self class] typeOfPropertyNamed: name] );
+}
+
 - (SEL) getterForPropertyNamed: (NSString *) name
 {
 	return ( [[self class] getterForPropertyNamed: name] );
@@ -170,6 +187,24 @@ static NSDictionary * _AQGetPropertyAttributeDictionary( objc_property_t propert
 @end
 
 #pragma mark -
+
+const char * property_getTypeString( objc_property_t property )
+{
+	const char * attrs = property_getAttributes( property );
+	if ( attrs == NULL )
+		return ( NULL );
+	
+	static char buffer[256];
+	const char * e = strchr( attrs, ',' );
+	if ( e == NULL )
+		return ( NULL );
+	
+	int len = (int)(e - p);
+	memcpy( buffer, attrs, len );
+	buffer[len] = '\0';
+	
+	return ( buffer );
+}
 
 SEL property_getGetter( objc_property_t property )
 {
