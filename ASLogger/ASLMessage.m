@@ -23,7 +23,8 @@
  */
 
 #import "ASLMessage.h"
-#import "NSObject+Properties.h"
+#import "NSObject+Properties.h"
+#import "NSData+Base64.h"
 
 // yay for GC & objc_assign_global() !
 static NSDateFormatter * __formatter = nil;
@@ -41,6 +42,11 @@ static const char * levelStrings[] =
 	ASL_STRING_DEBUG
 };
 
+// keep in sync with ASLResponse.m
+@interface ASLMessage (ResponseHelper)
+- (id) initWithResponseMessage: (aslmsg) message;
+@end
+
 @implementation ASLMessage
 
 @synthesize aslmessage=_message;
@@ -57,15 +63,28 @@ static const char * levelStrings[] =
 	return ( self );
 }
 
+- (id) initWithResponseMessage: (aslmsg) message
+{
+	if ( [super init] == nil )
+		return ( nil );
+	
+	_message = message;
+	_nofree = YES;
+	
+	return ( self );
+}
+
 - (void) dealloc
 {
-	asl_free( _message );
+	if ( !_nofree )
+		asl_free( _message );
 	[super dealloc];
 }
 
 - (void) finalize
 {
-	asl_free( _message );
+	if ( !_nofree )
+		asl_free( _message );
 	[super finalize];
 }
 
@@ -87,9 +106,6 @@ static const char * levelStrings[] =
 	if ( [self hasPropertyForKVCKey: key] )
 		return;
 	
-	if ( class_getProperty([self class], [name UTF8String]) != NULL )
-		return;
-	
 	if ( [value isKindOfClass: [NSString class]] )
 	{
 		asl_set( _message, [key UTF8String], [value UTF8String] );
@@ -97,6 +113,10 @@ static const char * levelStrings[] =
 	else if ( [value respondsToSelector: @selector(stringValue)] )
 	{
 		asl_set( _message, [key UTF8String], [[value stringValue] UTF8String] );
+	}
+	else if ( [value isKindOfClass: [NSData class]] )
+	{
+		asl_set( _message, [key UTF8String], [[value base64EncodedString] UTF8String] );
 	}
 	else
 	{
@@ -260,7 +280,7 @@ static const char * levelStrings[] =
 - (void) setReadGID: (gid_t) readGID
 {
 	char str[12];
-	sprintf( str, "%d", (int) readGID )
+	sprintf( str, "%d", (int) readGID );
 	asl_set( _message, "ReadGID", str );
 }
 

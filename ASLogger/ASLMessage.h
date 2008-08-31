@@ -27,7 +27,8 @@
 
 @interface ASLMessage : NSObject
 {
-	aslmsg _message;
+	aslmsg	_message;
+	BOOL	_nofree;
 }
 
 @property (nonatomic, readonly) aslmsg aslmessage;
@@ -42,7 +43,7 @@
 @property (nonatomic, readonly) pid_t processID;	// "PID"	-- no value returns  0
 @property (nonatomic, readonly) uid_t userID;		// "UID"	-- no value returns -1
 @property (nonatomic, readonly) gid_t groupID;		// "GID"	-- no value returns -1
-@property (nonatomic) level;						// "Level"
+@property (nonatomic) int level;					// "Level"
 @property (nonatomic, copy) NSString * message;		// "Message"
 
 // security-related properties: set one or both of these to limit query access to the message

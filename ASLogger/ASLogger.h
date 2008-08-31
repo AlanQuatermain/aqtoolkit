@@ -18,14 +18,13 @@
  *    http://creativecommons.org/licenses/by-sa/3.0/
  *
  */
-/*
- * Provided under non-exclusive license to Tenzing Communications.
- */
 
 #import <Foundation/Foundation.h>
 #import <asl.h>
 
 #import "ASLMessage.h"
+#import "ASLQuery.h"
+#import "ASLResponse.h"
 
 @interface ASLogger : NSObject
 {
@@ -37,10 +36,10 @@
 
 // returns a singleton using default parameters -- this does not open a client connection
 //  by default, and thus may be initialized using setName:facility:options: upon application
-//  startup, and future users of hte logger can simply call [ASLogger defaultLogger] with impunity
+//  startup, and future users of the logger can simply call [ASLogger defaultLogger] with impunity
 + (ASLogger *) defaultLogger;
 
-+ (ASLogger *) loggerWithName: (NSString *) name 
++ (ASLogger *) loggerWithName: (NSString *) name
 					 facility: (NSString *) facility
 					  options: (uint32_t) opts;
 
@@ -69,5 +68,9 @@
 //  the receiver's 'client' property.
 - (BOOL) addLogFile: (NSString *) path;
 - (void) removeLogFile: (NSString *) path;
+
+// searching the database: setup an ASLQuery and pass it here. You can fetch found messages
+//  from the returned ASLResponse object
+- (ASLResponse *) search: (ASLQuery *) query;
 
 @end

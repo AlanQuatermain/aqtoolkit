@@ -27,7 +27,7 @@
 // and the types of properties are actually encoded as such along with a strong-type
 // value following. Therefore, if you want to check for a specific class, you can 
 // provide a type string of '@"NSString"'. The following macro will do this for you.
-#define @statictype(x)	"@\"" #x "\""
+#define statictype(x)	"@\"" #x "\""
 
 // Also, note that the runtime information doesn't include an atomicity hint, so we
 // can't determine that information
@@ -36,9 +36,9 @@
 
 + (BOOL) hasProperties;
 + (BOOL) hasPropertyNamed: (NSString *) name;
-+ (BOOL) hasPropertyNamed: (NSString *) name ofType: (const char *) type;	// an @encode() or @statictype() type string
++ (BOOL) hasPropertyNamed: (NSString *) name ofType: (const char *) type;	// an @encode() or statictype() type string
 + (BOOL) hasPropertyForKVCKey: (NSString *) key;
-+ (const char *) typeOfPropertyNamed: (NSString *) name;	// returns an @encode() or @statictype() string. Copy to keep
++ (const char *) typeOfPropertyNamed: (NSString *) name;	// returns an @encode() or statictype() string. Copy to keep
 + (SEL) getterForPropertyNamed: (NSString *) name;
 + (SEL) setterForPropertyNamed: (NSString *) name;
 + (NSString *) retentionMethodOfPropertyNamed: (NSString *) name;		// returns one of: copy, retain, assign
@@ -49,7 +49,7 @@
 - (BOOL) hasPropertyNamed: (NSString *) name;
 - (BOOL) hasPropertyNamed: (NSString *) name ofType: (const char *) type;
 - (BOOL) hasPropertyForKVCKey: (NSString *) key;
-= (const char *) typeOfPropertyNamed: (NSString *) name;
+- (const char *) typeOfPropertyNamed: (NSString *) name;
 - (SEL) getterForPropertyNamed: (NSString *) name;
 - (SEL) setterForPropertyNamed: (NSString *) name;
 - (NSString *) retentionMethodOfPropertyNamed: (NSString *) name;

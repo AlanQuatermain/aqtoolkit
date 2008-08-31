@@ -46,9 +46,8 @@
 	if ( property == NULL )
 		return ( NO );
 
-	NSDictionary * attrs = _AQGetPropertyAttributeDictionary( property );
-	NSString * value = [attrs objectForKey: @"AQPropertyType"];
-	if ( strcmp(type, [value UTF8String]) == 0 )
+	const char * value = property_getTypeString( property );
+	if ( strcmp(type, value) == 0 )
 		return ( YES );
 	
 	return ( NO );
@@ -60,6 +59,15 @@
         return ( YES );
 
     return ( [self hasPropertyNamed: [key propertyStyleString]] );
+}
+
++ (const char *) typeOfPropertyNamed: (NSString *) name
+{
+	objc_property_t property = class_getProperty( self, [name UTF8String] );
+	if ( property == NULL )
+		return ( NULL );
+	
+	return ( property_getTypeString(property) );
 }
 
 + (SEL) getterForPropertyNamed: (NSString *) name
@@ -123,7 +131,7 @@
 + (NSArray *) propertyNames
 {
 	unsigned int i, count = 0;
-	objc_property_t properties = class_copyPropertyList( self, &count );
+	objc_property_t * properties = class_copyPropertyList( self, &count );
 	
 	if ( count == 0 )
 	{
@@ -134,7 +142,7 @@
 	NSMutableArray * list = [NSMutableArray array];
 	
 	for ( i = 0; i < count; i++ )
-		[list addObject: [NSString stringWithUTF8String: class_getPropertyName(properties[i])]];
+		[list addObject: [NSString stringWithUTF8String: property_getName(properties[i])]];
 	
 	return ( [[list copy] autorelease] );
 }
@@ -159,7 +167,7 @@
     return ( [[self class] hasPropertyForKVCKey: key] );
 }
 
-- (const char *) typeOfPropertyNamed: (NString *) name
+- (const char *) typeOfPropertyNamed: (NSString *) name
 {
 	return ( [[self class] typeOfPropertyNamed: name] );
 }
@@ -199,7 +207,7 @@ const char * property_getTypeString( objc_property_t property )
 	if ( e == NULL )
 		return ( NULL );
 	
-	int len = (int)(e - p);
+	int len = (int)(e - attrs);
 	memcpy( buffer, attrs, len );
 	buffer[len] = '\0';
 	

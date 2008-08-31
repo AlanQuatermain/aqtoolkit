@@ -18,9 +18,6 @@
  *    http://creativecommons.org/licenses/by-sa/3.0/
  *
  */
-/*
- * Provided under non-exclusive license to Tenzing Communications.
- */
 
 #import "ASLogger.h"
 
@@ -93,30 +90,42 @@ static ASLogger * __defaultLogger = nil;
 {
 	va_list args;
 	va_start(args, level);
-	BOOL result = (asl_vlog(_client, NULL, level, [format UTF8String], args) == 0);
+	NSString * msg = [[NSString alloc] initWithFormat: format arguments: args];
 	va_end(args);
+	
+	BOOL result = (asl_log(_client, NULL, level, [msg UTF8String]) == 0);
+	[msg release];
 	
 	return ( result );
 }
 
 - (BOOL) log: (NSString *) format level: (int) level args: (va_list) args
 {
-	return ( asl_vlog(_client, NULL, level, [format UTF8String], args) == 0 );
+	NSString * msg = [[NSString alloc] initWithFormat: format arguments: args];
+	BOOL result = (asl_log(_client, NULL, level, [msg UTF8String]) == 0);
+	[msg release];
+	return ( result );
 }
 
 - (BOOL) log: (NSString *) format message: (ASLMessage *) message level: (int) level, ...
 {
 	va_list args;
 	va_start(args, level);
-	BOOL result = (asl_vlog(_client, message.aslmessage, level, [format UTF8String], args) == 0);
+	NSString * msg = [[NSString alloc] initWithFormat: format arguments: args];
 	va_end(args);
+	
+	BOOL result = (asl_log(_client, message.aslmessage, level, [msg UTF8String]) == 0);
+	[msg release];
 	
 	return ( result );
 }
 
 - (BOOL) log: (NSString *) format message: (ASLMessage *) message level: (int) level args: (va_list) args
 {
-	return ( asl_vlog(_client, message.aslmessage, level, [format UTF8String], args) == 0 );
+	NSString * msg = [[NSString alloc] initWithFormat: format arguments: args];
+	BOOL result = (asl_log(_client, message.aslmessage, level, [msg UTF8String]) == 0);
+	[msg release];
+	return ( result );
 }
 
 - (BOOL) logMessage: (ASLMessage *) message
@@ -157,6 +166,12 @@ static ASLogger * __defaultLogger = nil;
 		// this will close & release the file handle
 		[_additionalFiles removeObjectForKey: path];
 	}
+}
+
+- (ASLResponse *) search: (ASLQuery *) query
+{
+	aslresponse r = asl_search( _client, query.aslmessage );
+	return ( [ASLResponse responseWithResponse: r] );
 }
 
 @end
