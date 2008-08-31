@@ -74,3 +74,20 @@
 - (ASLResponse *) search: (ASLQuery *) query;
 
 @end
+
+#pragma mark -
+
+// some useful macros to help cure excessively-large-code-level-verbosity complex
+// note that these all operate on the default logger. If you need something more specific,
+//  you'll have to put up with a little verbosity.
+#define ASLog(level, format, ...) [[ASLogger defaultLogger] log: format level: level, ## __VA_ARGS__]
+#define ASLogMessage(level, msg, format, ...) [[ASLogger defaultLogger] log: format message: msg level: level, ## __VA_ARGS__]
+
+#define ASLogDebug(format, ...)		ASLog(ASL_LEVEL_DEBUG, format, ## __VA_ARGS__)
+#define ASLogInfo(format, ...)		ASLog(ASL_LEVEL_INFO, format, ## __VA_ARGS__)
+#define ASLogNotice(format, ...)	ASLog(ASL_LEVEL_NOTICE, format, ## __VA_ARGS__)
+#define ASLogWarning(format, ...)	ASLog(ASL_LEVEL_WARNING, format, ## __VA_ARGS__)
+#define ASLogError(format, ...)		ASLog(ASL_LEVEL_ERR, format, ## __VA_ARGS__)
+#define ASLogCritical(format, ...)	ASLog(ASL_LEVEL_CRIT, format, ## __VA_ARGS__)
+#define ASLogAlert(format, ...)		ASLog(ASL_LEVEL_ALERT, format, ## __VA_ARGS__)
+#define ASLogEmergency(format, ...)	ASLog(ASL_LEVEL_EMERG, format, ## __VA_ARGS__)
