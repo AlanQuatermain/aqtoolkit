@@ -37,12 +37,42 @@ static AQConnectionMultiplexer * __connectionMultiplexer = nil;
 			__connectionMultiplexer = [[AQConnectionMultiplexer alloc] init];
 			[__connectionMultiplexer start];
 		}
-		
-		[__connectionMultiplexer performSelector: @selector(_addHelper:)
-										onThread: __connectionMultiplexer
-									  withObject: helper
-								   waitUntilDone: YES];
 	}
+	
+	[__connectionMultiplexer performSelector: @selector(_addHelper:)
+									onThread: __connectionMultiplexer
+								  withObject: helper
+							   waitUntilDone: YES];
+}
+
++ (void) removeDownloadHelper: (AQLowMemoryDownloadHelper *) helper
+{
+	if ( __connectionMultiplexer == nil )
+		return;
+	
+	[__connectionMultiplexer performSelector: @selector(_removeHelper:)
+									onThread: __connectionMultiplexer
+								  withObject: helper
+							   waitUntilDone: YES];
+}
+
++ (void) cancelPendingTransfers
+{
+	NSThread * thread = nil;
+	@synchronized(self)
+	{
+		thread = [__connectionMultiplexer retain];
+	}
+	
+	if ( thread == nil )
+		return;
+	
+	[__connectionMultiplexer performSelector: @selector(_cancelTransfers)
+									onThread: thread
+								  withObject: nil
+							   waitUntilDone: YES];
+	
+	[thread release];
 }
 
 - (id) init
@@ -85,13 +115,34 @@ static AQConnectionMultiplexer * __connectionMultiplexer = nil;
 
 - (void) _terminate
 {
-	[_downloadHelpers makeObjectsPerformSelector: @selector(cancel)];
+	[self _cancelTransfers];
 }
 
 - (void) _addHelper: (AQLowMemoryDownloadHelper *) helper
 {
-	[_downloadHelpers addObject: helper];
+	@synchronized(_downloadHelpers)
+	{
+		[_downloadHelpers addObject: helper];
+	}
+	
 	[helper start];
+}
+
+- (void) _removeHelper: (AQLowMemoryDownloadHelper *) helper
+{
+	@synchronized(_downloadHelpers)
+	{
+		[_downloadHelpers removeObject: helper];
+	}
+}
+
+- (void) _cancelTransfers
+{
+	@synchronized(_downloadHelpers)
+	{
+		[_downloadHelpers makeObjectsPerformSelector: @selector(cancel)];
+		[_downloadHelpers removeAllObjects];
+	}
 }
 
 - (void) main
