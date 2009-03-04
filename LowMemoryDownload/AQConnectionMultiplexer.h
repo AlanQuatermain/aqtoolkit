@@ -36,5 +36,7 @@
 }
 
 + (void) attachDownloadHelper: (AQLowMemoryDownloadHelper *) helper;
++ (void) removeDownloadHelper: (AQLowMemoryDownloadHelper *) helper;
++ (void) cancelPendingTransfers;
 
 @end

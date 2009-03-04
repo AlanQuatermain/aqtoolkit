@@ -222,6 +222,8 @@ didReceiveAuthenticationChallenge: (NSURLAuthenticationChallenge *) challenge;
 	
 	[pool drain];
 	
+	[AQConnectionMultiplexer removeDownloadHelper: self];
+	
 	if ( _tmpFilePath == nil )
 		return ( NO );
 	

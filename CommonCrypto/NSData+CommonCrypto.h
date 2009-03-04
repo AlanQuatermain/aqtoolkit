@@ -23,6 +23,12 @@
 #import <CommonCrypto/CommonCryptor.h>
 #import <CommonCrypto/CommonHMAC.h>
 
+extern NSString * const kCommonCryptoErrorDomain;
+
+@interface NSError (CommonCryptoErrorDomain)
++ (NSError *) errorWithCCCryptorStatus: (CCCryptorStatus) status;
+@end
+
 @interface NSData (CommonDigest)
 
 - (NSData *) MD2Sum;
@@ -38,6 +44,19 @@
 @end
 
 @interface NSData (CommonCryptor)
+
+- (NSData *) AES256EncryptedDataUsingKey: (id) key error: (NSError **) error;
+- (NSData *) decryptedAES256DataUsingKey: (id) key error: (NSError **) error;
+
+- (NSData *) DESEncryptedDataUsingKey: (id) key error: (NSError **) error;
+- (NSData *) decryptedDESDataUsingKey: (id) key error: (NSError **) error;
+
+- (NSData *) CASTEncryptedDataUsingKey: (id) key error: (NSError **) error;
+- (NSData *) decryptedCASTDataUsingKey: (id) key error: (NSError **) error;
+
+@end
+
+@interface NSData (LowLevelCommonCryptor)
 
 - (NSData *) dataEncryptedUsingAlgorithm: (CCAlgorithm) algorithm
 									 key: (id) key		// data or string
