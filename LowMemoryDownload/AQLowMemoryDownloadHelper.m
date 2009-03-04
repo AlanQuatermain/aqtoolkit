@@ -172,7 +172,10 @@ didReceiveAuthenticationChallenge: (NSURLAuthenticationChallenge *) challenge;
 
 - (void) cancel
 {
-	[self _cancel];
+	[self performSelector: @selector(_cancel)
+				 onThread: _thread
+			   withObject: nil
+			waitUntilDone: YES];
 }
 
 @end

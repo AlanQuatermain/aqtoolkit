@@ -38,5 +38,3 @@
 + (void) attachDownloadHelper: (AQLowMemoryDownloadHelper *) helper;
 
 @end
-
-extern NSString * const AQMultiplexedConnectionComplete;
