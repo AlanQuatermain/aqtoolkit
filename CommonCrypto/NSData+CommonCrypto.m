@@ -156,6 +156,7 @@ NSString * const kCommonCryptoErrorDomain = @"CommonCryptoErrorDomain";
 	CCCryptorStatus status = kCCSuccess;
 	NSData * result = [self dataEncryptedUsingAlgorithm: kCCAlgorithmAES128
 													key: key
+                                                options: kCCOptionPKCS7Padding
 												  error: &status];
 	
 	if ( result != nil )
@@ -172,6 +173,7 @@ NSString * const kCommonCryptoErrorDomain = @"CommonCryptoErrorDomain";
 	CCCryptorStatus status = kCCSuccess;
 	NSData * result = [self decryptedDataUsingAlgorithm: kCCAlgorithmAES128
 													key: key
+                                                options: kCCOptionPKCS7Padding
 												  error: &status];
 	
 	if ( result != nil )
@@ -188,6 +190,7 @@ NSString * const kCommonCryptoErrorDomain = @"CommonCryptoErrorDomain";
 	CCCryptorStatus status = kCCSuccess;
 	NSData * result = [self dataEncryptedUsingAlgorithm: kCCAlgorithmDES
 													key: key
+                                                options: kCCOptionPKCS7Padding
 												  error: &status];
 	
 	if ( result != nil )
@@ -204,6 +207,7 @@ NSString * const kCommonCryptoErrorDomain = @"CommonCryptoErrorDomain";
 	CCCryptorStatus status = kCCSuccess;
 	NSData * result = [self decryptedDataUsingAlgorithm: kCCAlgorithmDES
 													key: key
+                                                options: kCCOptionPKCS7Padding
 												  error: &status];
 	
 	if ( result != nil )
@@ -220,6 +224,7 @@ NSString * const kCommonCryptoErrorDomain = @"CommonCryptoErrorDomain";
 	CCCryptorStatus status = kCCSuccess;
 	NSData * result = [self dataEncryptedUsingAlgorithm: kCCAlgorithmCAST
 													key: key
+                                                options: kCCOptionPKCS7Padding
 												  error: &status];
 	
 	if ( result != nil )
@@ -236,6 +241,7 @@ NSString * const kCommonCryptoErrorDomain = @"CommonCryptoErrorDomain";
 	CCCryptorStatus status = kCCSuccess;
 	NSData * result = [self decryptedDataUsingAlgorithm: kCCAlgorithmCAST
 													key: key
+                                                options: kCCOptionPKCS7Padding
 												  error: &status];
 	
 	if ( result != nil )
@@ -280,8 +286,20 @@ NSString * const kCommonCryptoErrorDomain = @"CommonCryptoErrorDomain";
 {
 	return ( [self dataEncryptedUsingAlgorithm: algorithm
 										   key: key
-						  initializationVector: nil
+                          initializationVector: nil
 									   options: 0
+										 error: error] );
+}
+
+- (NSData *) dataEncryptedUsingAlgorithm: (CCAlgorithm) algorithm
+									 key: (id) key
+                                 options: (CCOptions) options
+								   error: (CCCryptorStatus *) error
+{
+    return ( [self dataEncryptedUsingAlgorithm: algorithm
+										   key: key
+                          initializationVector: nil
+									   options: options
 										 error: error] );
 }
 
@@ -335,6 +353,18 @@ NSString * const kCommonCryptoErrorDomain = @"CommonCryptoErrorDomain";
 										   key: key
 						  initializationVector: nil
 									   options: 0
+										 error: error] );
+}
+
+- (NSData *) decryptedDataUsingAlgorithm: (CCAlgorithm) algorithm
+									 key: (id) key		// data or string
+                                 options: (CCOptions) options
+								   error: (CCCryptorStatus *) error
+{
+    return ( [self decryptedDataUsingAlgorithm: algorithm
+										   key: key
+						  initializationVector: nil
+									   options: options
 										 error: error] );
 }
 

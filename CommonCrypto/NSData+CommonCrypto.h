@@ -63,12 +63,20 @@ extern NSString * const kCommonCryptoErrorDomain;
 								   error: (CCCryptorStatus *) error;
 - (NSData *) dataEncryptedUsingAlgorithm: (CCAlgorithm) algorithm
 									 key: (id) key		// data or string
+                                 options: (CCOptions) options
+								   error: (CCCryptorStatus *) error;
+- (NSData *) dataEncryptedUsingAlgorithm: (CCAlgorithm) algorithm
+									 key: (id) key		// data or string
 					initializationVector: (id) iv		// data or string
 								 options: (CCOptions) options
 								   error: (CCCryptorStatus *) error;
 
 - (NSData *) decryptedDataUsingAlgorithm: (CCAlgorithm) algorithm
 									 key: (id) key		// data or string
+								   error: (CCCryptorStatus *) error;
+- (NSData *) decryptedDataUsingAlgorithm: (CCAlgorithm) algorithm
+									 key: (id) key		// data or string
+                                 options: (CCOptions) options
 								   error: (CCCryptorStatus *) error;
 - (NSData *) decryptedDataUsingAlgorithm: (CCAlgorithm) algorithm
 									 key: (id) key		// data or string
