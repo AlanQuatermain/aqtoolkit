@@ -270,7 +270,7 @@ NSString * const kCommonCryptoErrorDomain = @"CommonCryptoErrorDomain";
 		return ( nil );
 	}
 	
-	// From Brent Royal-Gordon (Twitter: architecties):
+	// From Brent Royal-Gordon (Twitter: architechies):
 	//  Need to update buf ptr past used bytes when calling CCCryptorFinal()
 	*status = CCCryptorFinal( cryptor, buf + bufused, bufsize - bufused, &bufused );
 	if ( *status != kCCSuccess )
