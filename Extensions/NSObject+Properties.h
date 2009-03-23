@@ -6,16 +6,14 @@
  *  Copyright (c) 2008 Jim Dovey. Some Rights Reserved.
  *
  *  This work is licensed under a Creative Commons
- *  Attribution-Noncommercial-Share Alike License. You are
- *  free to use and redistribute this work, but may not use
- *  it for commercial purposes, and any changes you make
- *  must be released under the same or similar license.
- *  In addition, you must include the following disclaimer:
+ *  Attribution License. You are free to use, modify,
+ *  and redistribute this work, provided you include
+ *  the following disclaimer:
  *
  *    Portions Copyright (c) 2008 Jim Dovey
  *
  *  For license details, see:
- *    http://creativecommons.org/licenses/by-nc-sa/3.0/
+ *    http://creativecommons.org/licenses/by/3.0/
  *
  */
 

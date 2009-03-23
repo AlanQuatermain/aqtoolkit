@@ -7,18 +7,17 @@
  *
  *  This work is licensed under a Creative Commons
  *  Attribution License. You are free to use, modify,
- *  and redistribute this work, but may only distribute
- *  the resulting work under the same, similar or a
- *  compatible license. In addition, you must include
+ *  and redistribute this work, provided you include
  *  the following disclaimer:
  *
  *    Portions Copyright (c) 2008 Jim Dovey
  *
  *  For license details, see:
- *    http://creativecommons.org/licenses/by-sa/3.0/
+ *    http://creativecommons.org/licenses/by/3.0/
  *
  */
 
+#import <Foundation/Foundation.h>
 #import "NSData+Base64.h"
 
 // implementation for base64 comes from OmniFoundation. A (much less verbose)

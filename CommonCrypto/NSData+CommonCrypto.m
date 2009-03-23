@@ -7,18 +7,17 @@
  *
  *  This work is licensed under a Creative Commons
  *  Attribution License. You are free to use, modify,
- *  and redistribute this work, but may only distribute
- *  the resulting work under the same, similar or a
- *  compatible license. In addition, you must include
+ *  and redistribute this work, provided you include
  *  the following disclaimer:
  *
  *    Portions Copyright (c) 2008 Jim Dovey
  *
  *  For license details, see:
- *    http://creativecommons.org/licenses/by-sa/3.0/
+ *    http://creativecommons.org/licenses/by/3.0/
  *
  */
 
+#import <Foundation/Foundation.h>
 #import "NSData+CommonCrypto.h"
 #import <CommonCrypto/CommonDigest.h>
 #import <CommonCrypto/CommonCryptor.h>
@@ -255,6 +254,69 @@ NSString * const kCommonCryptoErrorDomain = @"CommonCryptoErrorDomain";
 
 @end
 
+static void FixKeyLengths( CCAlgorithm algorithm, NSMutableData * keyData, NSMutableData * ivData )
+{
+	NSUInteger keyLength = [keyData length];
+	switch ( algorithm )
+	{
+		case kCCAlgorithmAES128:
+		{
+			if ( keyLength < 16 )
+			{
+				[keyData setLength: 16];
+			}
+			else if ( keyLength < 24 )
+			{
+				[keyData setLength: 24];
+			}
+			else
+			{
+				[keyData setLength: 32];
+			}
+			
+			break;
+		}
+			
+		case kCCAlgorithmDES:
+		{
+			[keyData setLength: 8];
+			break;
+		}
+			
+		case kCCAlgorithm3DES:
+		{
+			[keyData setLength: 24];
+			break;
+		}
+			
+		case kCCAlgorithmCAST:
+		{
+			if ( keyLength < 5 )
+			{
+				[keyData setLength: 5];
+			}
+			else if ( keyLength > 16 )
+			{
+				[keyData setLength: 16];
+			}
+			
+			break;
+		}
+			
+		case kCCAlgorithmRC4:
+		{
+			if ( keyLength > 512 )
+				[keyData setLength: 512];
+			break;
+		}
+			
+		default:
+			break;
+	}
+	
+	[ivData setLength: [keyData length]];
+}
+
 @implementation NSData (LowLevelCommonCryptor)
 
 - (NSData *) _runCryptor: (CCCryptorRef) cryptor result: (CCCryptorStatus *) status
@@ -279,7 +341,7 @@ NSString * const kCommonCryptoErrorDomain = @"CommonCryptoErrorDomain";
 		return ( nil );
 	}
 	
-	return ( [NSData dataWithBytesNoCopy: buf length: bufused] );
+	return ( [NSData dataWithBytesNoCopy: buf length: bufsize] );
 }
 
 - (NSData *) dataEncryptedUsingAlgorithm: (CCAlgorithm) algorithm
@@ -317,20 +379,27 @@ NSString * const kCommonCryptoErrorDomain = @"CommonCryptoErrorDomain";
 	NSParameterAssert([key isKindOfClass: [NSData class]] || [key isKindOfClass: [NSString class]]);
 	NSParameterAssert(iv == nil || [iv isKindOfClass: [NSData class]] || [iv isKindOfClass: [NSString class]]);
 	
-	NSData * keyData, * ivData;
+	NSMutableData * keyData, * ivData;
 	if ( [key isKindOfClass: [NSData class]] )
-		keyData = (NSData *) key;
+		keyData = (NSMutableData *) [key mutableCopy];
 	else
-		keyData = [key dataUsingEncoding: NSUTF8StringEncoding];
+		keyData = [[key dataUsingEncoding: NSUTF8StringEncoding] mutableCopy];
 	
 	if ( [iv isKindOfClass: [NSString class]] )
-		ivData = [iv dataUsingEncoding: NSUTF8StringEncoding];
+		ivData = [[iv dataUsingEncoding: NSUTF8StringEncoding] mutableCopy];
 	else
-		ivData = (NSData *) iv;	// data or nil
+		ivData = (NSMutableData *) [iv mutableCopy];	// data or nil
+	
+	[keyData autorelease];
+	[ivData autorelease];
+	
+	// ensure correct lengths for key and iv data, based on algorithms
+	FixKeyLengths( algorithm, keyData, ivData );
 	
 	status = CCCryptorCreate( kCCEncrypt, algorithm, options,
 							  [keyData bytes], [keyData length], [ivData bytes],
 							  &cryptor );
+	
 	if ( status != kCCSuccess )
 	{
 		if ( error != NULL )
@@ -382,20 +451,27 @@ NSString * const kCommonCryptoErrorDomain = @"CommonCryptoErrorDomain";
 	NSParameterAssert([key isKindOfClass: [NSData class]] || [key isKindOfClass: [NSString class]]);
 	NSParameterAssert(iv == nil || [iv isKindOfClass: [NSData class]] || [iv isKindOfClass: [NSString class]]);
 	
-	NSData * keyData, * ivData;
+	NSMutableData * keyData, * ivData;
 	if ( [key isKindOfClass: [NSData class]] )
-		keyData = (NSData *) key;
+		keyData = (NSMutableData *) [key mutableCopy];
 	else
-		keyData = [key dataUsingEncoding: NSUTF8StringEncoding];
+		keyData = [[key dataUsingEncoding: NSUTF8StringEncoding] mutableCopy];
 	
 	if ( [iv isKindOfClass: [NSString class]] )
-		ivData = [iv dataUsingEncoding: NSUTF8StringEncoding];
+		ivData = [[iv dataUsingEncoding: NSUTF8StringEncoding] mutableCopy];
 	else
-		ivData = (NSData *) iv;	// data or nil
+		ivData = (NSMutableData *) [iv mutableCopy];	// data or nil
+	
+	[keyData autorelease];
+	[ivData autorelease];
+	
+	// ensure correct lengths for key and iv data, based on algorithms
+	FixKeyLengths( algorithm, keyData, ivData );
 	
 	status = CCCryptorCreate( kCCDecrypt, algorithm, options,
-							 [keyData bytes], [keyData length], [ivData bytes],
-							 &cryptor );
+							  [keyData bytes], [keyData length], [ivData bytes],
+							  &cryptor );
+	
 	if ( status != kCCSuccess )
 	{
 		if ( error != NULL )
