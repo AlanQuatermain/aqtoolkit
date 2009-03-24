@@ -225,4 +225,13 @@
 	return ( [result autorelease] );
 }
 
+- (NSInputStream *) inputStreamUsingStreamedBodyData: (NSInputStream *) bodyStream
+{
+	if ( self.isRequest == NO )
+		return ( nil );
+	
+	NSInputStream * result = NSMakeCollectable( CFReadStreamCreateForStreamedHTTPRequest(kCFAllocatorDefault, _internal, (CFReadStreamRef)bodyStream) );
+	return ( [result autorelease] );
+}
+
 @end

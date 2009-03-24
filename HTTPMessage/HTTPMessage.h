@@ -86,6 +86,10 @@
 // returns nil if the receiver is a response message
 - (NSInputStream *) inputStream;
 
+// if you want/need to provide the message body as a stream, here's your lad.
+// if the input stream isn't required, just discard it immediately.
+- (NSInputStream *) inputStreamUsingStreamedBodyData: (NSInputStream *) bodyStream;
+
 @end
 
 // HTTP version string constants
