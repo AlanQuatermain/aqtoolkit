@@ -596,7 +596,11 @@ static void __startElementNS( void * ctx, const xmlChar *localname, const xmlCha
 		return ( nil );
 	
 	_internal = [[_AQXMLParserInternal alloc] init];
+#if TARGET_OS_IPHONE
+	_internal->saxHandler = NSZoneMalloc( [self zone], sizeof(struct _xmlSAXHandler) );
+#else
 	_internal->saxHandler = NSAllocateCollectable( sizeof(struct _xmlSAXHandler), 0 );
+#endif
 	_internal->parserContext = NULL;
 	_internal->error = nil;
 	
