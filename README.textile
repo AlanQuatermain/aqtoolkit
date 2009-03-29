@@ -1,8 +1,12 @@
-h2. AQ Toolkit
+h1. AQ Toolkit
+
+h2. Overview
 
 This toolkit is comprised of various bits of utility code I've written for odd projects here & there, including iPhone projects such as "Outpost":http://www.outpostapp.com/. Most of these classes, with the possible exception of those which came from iPhone projects, are designed to be usable with both garbage collection and manual memory management.
 
 If you have feature requests, or wish to file bugs, you can do so via "Lighthouse":http://quatermain.lighthouseapp.com/projects/28259-aqtoolkit
+
+h2. Contents
 
 h3. ASLogger
 
