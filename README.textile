@@ -1,0 +1,79 @@
+h2. AQ Toolkit
+
+This toolkit is comprised of various bits of utility code I've written for odd projects here & there, including iPhone projects such as "Outpost":http://www.outpostapp.com/. Most of these classes, with the possible exception of those which came from iPhone projects, are designed to be usable with both garbage collection and manual memory management.
+
+If you have feature requests, or wish to file bugs, you can do so via "Lighthouse":http://quatermain.lighthouseapp.com/projects/28259-aqtoolkit
+
+h3. ASLogger
+
+This implements an Objective-C interface to the Apple System Logger C API.
+
+* *ASLogger* -- An interface to a specific logger client connection. Also defines a default logger. Use this class and its associated macros to send messages to the logger, and to set its attributes.
+* *ASLMessage* -- A wrapper for a particular message. For plain messages, you'll likely never need this class, but if you want to use template messages or set advanced/custom properties on a message, this class provides the interface.
+* *ASLQuery* -- Used to construct a query. Actually a subclass of ASLMessage with a single new function to allow you to explicitly specify a comparison operation.
+* *ASLResponse* -- Encapsulates the result of querying a log using ASLQuery. Use @while ((msg = [response next]) != nil) { ... }@ to loop through the returned messages.
+
+h3. ChunkedXMLParser
+
+This is a slight optimization to Apple's NSXMLParser class. This version includes an NSData subclass which returns blobs of data by reading from an NSInputStream, and an NSXMLParser subclass which overrides @-parse@ to call @xmlDataChunk()@ multiple times, passing a discrete chunk each time.
+
+To initialize an @AQChunkedXMLData@, you pass it an NSInputStream instance. You then use the resulting object to initialize your @AQChunkedXMLParser@, which you use as though it were a regular NSXMLParser instance.
+
+h3. CommonCrypto
+
+This implements a category on NSData for performing digest, HMAC, and cryptographic operations on the contents of the receiver, all of which are based on the CommonCrypto C API.
+
+For an example of its usage, look at @example.m@. This file implements a command-line utility which can encrypt/decrypt data to/from files or standard input/output.
+
+h3. Extensions
+
+A collection of small categories on standard FoundationKit classes.
+
+* *NSData+Base64* -- Implements Base64 string/data conversions. This code is based on the implementation from the Omni Group's OmniFoundation framework, located "here":http://github.com/omnigroup/omnigroup/tree/master. This is because the alternative is to use OpenSSL, which requires linking against that library. That seemed a bit much just to get Base64 encoding support.
+* *NSError+CFStreamError* -- A category on NSError which attempts to convert the CFStreamError constructs still used by some CFNetwork code to proper NSError instances, using the newer CFErrorRef constants defined by that where possible.
+* *NSObject+Properties* -- A set of C functions and wrapping class/instance methods used to get information on the Objective-C 2.0 properties implemented by a class. It includes getting information on all attributes of the properties, as well as obtaining their types.
+* *NSString+PropertyKVC* -- A utility for the Property support above.
+
+h3. FSEventsWrapper
+
+A project implementing a simple Objective-C wrapper around the FSEvents C API. It's based on delegation right now, although may have something more generic and event-based later on.
+
+You use it by creating an instance of @AQFSEventStream@, passing a set of paths to watch. You can then schedule it with runloops, start, and stop the stream. Events which happen on the stream are passed to the delegate, which should conform to the @AQFSEventStreamDelegate@ protocol. Only one method is required, to get basic folder-updated events. The optional methods in the protocol are called to notify the delegate of special types of events; these may not be interesting, hence they are optional.
+
+A sample command-line application is included in _Monitor.m_.
+
+h3. HTTPMessage
+
+The classes in this folder provide wrappers around the CFHTTPMessageRef C API. Included are wrappers for CFHTTPMessageRef itself as well as CFHTTPAuthenticationRef, used for handling authentication responses. They fully support garbage-collection or managed memory.
+
+A HTTPMessage can represent a request or a response; which one must be specified at creation. Most properties are specified indirectly through the creation function arguments, but a couple can be set directly, such as the body data. HTTP header fields for requests can be set using @-setValue:forHeaderField:@.
+
+Access to the underlying CF object is not provided, except as a convenience between the two classes themselves.
+
+If you're thinking that CFNetwork is in different places on the Mac and the iPhone, don't worry, that's already covered.
+
+h3. LowLevelFSEvents
+
+This section implements an event-based reader for the low-level FSEvents device, as used by Spotlight and fseventsd. The code is based on the code & information from "Mac OS X Internals":http://www.osxbook.com/ by Amit Singh. The events themselves are read using a background thread, and are *immediately* passed on to the main thread, to avoid the fsevents queue from filling up in the kernel, causing dropped events.
+
+The fsevents.h header comes from xnu (the OS X kernel) and is reproduced verbatim.
+
+* FSEventManager -- this class implements the top-level interface to the system, and has a very sparse public API. It maintains a singleton object, accessible via @+sharedManager@, and has a class method @+shutdown@ used to ensure it shuts down cleanly when an application terminates. You set a single event handler object using the @handler@ property. The event handler should conform to the @FSEventHandler@ protocol.
+* FSEvent -- another sparse class, an instance of FSEvent is passed to the @-handleEvent:@ method of the event handler. From this you can get the event code, the process ID of the process which caused the event, a timestamp indicating when it happened, and a dictionary of arguments (which are event-specific). A loggable string value for an event code can be obtained using @+stringForEventCode:@.
+
+h3. LowMemoryDownload
+
+This set of classes is based on code from Outpost, and represents one way of reducing the memory footprint when downloading XML data on the iPhone. The main idea is to have all NSURLConnection instances run on a single background thread to reduce the number of thread-local variables being allocated by that (famously memory-hungry) API, whilst writing all received data directly out to a temporary file, instead of accumulating it in memory as is traditional. You can think of this as a form of manual pagefile. When the download is complete, the data is returned using memory-mapping, such that the kernel can manage loading and purging the data directly in discrete page-sized blocks.
+
+While this approach works marvellously at its intended aim (memory consumption in Outpost dropped from a peak of 26MB to 4MB when testing against some large accounts kindly provided by our users), it doesn't appear to solve every issue. Firstly it should be noted that using any form of tree-based XML parsing almost completely negates the benefits-- you should really only use tree-based XML parsers when you know you're dealing with small amounts of data. Secondly, since NSXMLParser hands the entire blob of data into libxml2 at once, in a single @xmlParseChunk()@ call, this enables libxml to hop around the data in memory enough to keep too much of it loaded, at least when multiplexing multiple XML downloads/parses (as Outpost must in order to remain remotely usable).
+
+* AQLowMemoryDownloadHelper -- this is designed with a minimal API such that it ultimately provides two one-shot functions for downloading data: one synchronous, another asynchronous. It defines a protocol for an authentication provider object, which will be used to handle 401 and 407 responses from the web server if supplied. It then gives read-only access to its request, response, and any returned data.
+* AQConnectionMultiplexer -- this class is a singleton used to manage a single download thread. Its only useful public function is @+cancelPendingTransfers@, which can be used when terminating an application to cancel any running downloads.
+
+h3. StreamingXMLParser
+
+This is the latest attempt to manage the download/parse sequence in Outpost. It's so new that at the time of this writing it's not been fully integrated into the codebase! It revolves around a new event-based XML parser, designed to function in nearly the same manner as NSXMLParser, with the same delegation routines. The main difference is that this version uses an NSInputStream as its data source, and it provides data in discrete blocks to the libxml2 parser library.
+
+Beyond the requirement of a stream, it is initialized, setup, and used in the same way as a standard NSXMLParser. Note that, for compile-time type checking, the delegate routines for AQXMLParser are declared again here, with AQXMLParser replacing NSXMLParser. These routines are now also declared inside a protocol using the @optional keyword, to match the new delegation API constructs used in the iPhone SDK.
+
+AQXMLParser is fully gc-compliant, or can be used in a managed-memory environment.
