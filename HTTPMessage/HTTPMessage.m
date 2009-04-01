@@ -63,8 +63,10 @@
 								   version: (NSString *) httpVersion
 {
 	CFHTTPMessageRef message = CFHTTPMessageCreateRequest( kCFAllocatorDefault, (CFStringRef)method,
-														   (CFURLRef)url, (CFStringRef)httpVersion );
-	return ( [[[self alloc] initWithCFHTTPMessageRef: message] autorelease] );
+                                                          (CFURLRef)[url absoluteURL], (CFStringRef)httpVersion );
+	HTTPMessage * result = [[self alloc] initWithCFHTTPMessageRef: message];
+    CFRelease( message );
+    return ( [result autorelease] );
 }
 
 + (HTTPMessage *) responseMessageWithHTTPStatus: (NSInteger) statusCode
@@ -72,8 +74,10 @@
 										version: (NSString *) httpVersion
 {
 	CFHTTPMessageRef message = CFHTTPMessageCreateResponse( kCFAllocatorDefault, (CFIndex)statusCode,
-														    (CFStringRef)statusDescription, (CFStringRef)httpVersion );
-	return ( [[[self alloc] initWithCFHTTPMessageRef: message] autorelease] );
+                                                           (CFStringRef)statusDescription, (CFStringRef)httpVersion );
+	HTTPMessage * result = [[self alloc] initWithCFHTTPMessageRef: message];
+    CFRelease( message );
+    return ( [result autorelease] );
 }
 
 - (id) initWithCFHTTPMessageRef: (CFHTTPMessageRef) message
@@ -84,7 +88,7 @@
 	if ( [super init] == nil )
 		return ( nil );
 	
-	_internal = (CFHTTPMessageRef) CFMakeCollectable( message );
+	_internal = (CFHTTPMessageRef) CFMakeCollectable( CFRetain(message) );
 	
 	return ( self );
 }
