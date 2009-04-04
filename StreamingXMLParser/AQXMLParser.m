@@ -47,6 +47,8 @@
 #import <libxml/encoding.h>
 #import <libxml/entities.h>
 
+NSString * const AQXMLParserParsingRunLoopMode = @"AQXMLParserParsingRunLoopMode";
+
 @interface _AQXMLParserInternal : NSObject
 {
 	@public
@@ -76,6 +78,8 @@ enum
 - (void) _pushNamespaces: (NSDictionary *) nsDict;
 - (void) _popNamespaces;
 - (void) _initializeSAX2Callbacks;
+- (void) _initializeParserWithBytes: (const void *) buf length: (NSUInteger) length;
+- (void) _pushXMLData: (const void *) bytes length: (NSUInteger) length;
 - (_AQXMLParserInternal *) _info;
 @end
 
@@ -725,24 +729,17 @@ static void __startElementNS( void * ctx, const xmlChar *localname, const xmlCha
 	uint8_t buf[4];
 	size_t buflen = 0;
 	
-	if ( [_stream hasBytesAvailable] )
-		buflen = [_stream read: buf maxLength: 4];
-	
-	_internal->parserContext = xmlCreatePushParserCtxt( saxHandler, self,
-													    (const char *)(buflen > 0 ? buf : NULL),
-													    buflen, NULL );
-	
-	int options = [self shouldResolveExternalEntities] ? 
-			XML_PARSE_RECOVER | XML_PARSE_NOENT | XML_PARSE_DTDLOAD :
-			XML_PARSE_RECOVER | XML_PARSE_DTDATTR;
-	
-	xmlCtxtUseOptions( _internal->parserContext, options );
-	
 	_streamComplete = NO;
+	
+	if ( [_stream hasBytesAvailable] )
+    {
+		buflen = [_stream read: buf maxLength: 4];
+        [self _initializeParserWithBytes: buf length: buflen];
+    }
 	
 	// start the stream processing going
 	[_stream setDelegate: self];
-	[_stream scheduleInRunLoop: [NSRunLoop currentRunLoop] forMode: NSRunLoopCommonModes];
+	[_stream scheduleInRunLoop: [NSRunLoop currentRunLoop] forMode: AQXMLParserParsingRunLoopMode];
 	
 	if ( [_stream streamStatus] == NSStreamStatusNotOpen )
 		[_stream open];
@@ -751,13 +748,13 @@ static void __startElementNS( void * ctx, const xmlChar *localname, const xmlCha
 	do
 	{
 		NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-		[[NSRunLoop currentRunLoop] runMode: NSRunLoopCommonModes beforeDate: [NSDate distantFuture]];
+		[[NSRunLoop currentRunLoop] runMode: AQXMLParserParsingRunLoopMode beforeDate: [NSDate distantFuture]];
 		[pool drain];
 		
 	} while ( _streamComplete == NO );
 	
 	[_stream setDelegate: nil];
-	[_stream removeFromRunLoop: [NSRunLoop currentRunLoop] forMode: NSRunLoopCommonModes];
+	[_stream removeFromRunLoop: [NSRunLoop currentRunLoop] forMode: AQXMLParserParsingRunLoopMode];
 	[_stream close];
 	
 	return ( _internal->error == nil );
@@ -794,14 +791,7 @@ static void __startElementNS( void * ctx, const xmlChar *localname, const xmlCha
 			uint8_t buf[1024];
 			int len = [input read: buf maxLength: 1024];
 			if ( len > 0 )
-			{
-				int err = xmlParseChunk( _internal->parserContext, (const char *)buf, len, 0 );
-				if ( err != XML_ERR_OK )
-				{
-					[self _setParserError: err];
-					_streamComplete = YES;
-				}
-			}
+                [self _pushXMLData: buf length: len];
 			
 			break;
 		}
@@ -946,6 +936,36 @@ static void __startElementNS( void * ctx, const xmlChar *localname, const xmlCha
 	p->comment = __comment;
 	p->externalSubset = __externalSubset2;
 	p->initialized = XML_SAX2_MAGIC;
+}
+
+- (void) _initializeParserWithBytes: (const void *) buf length: (NSUInteger) length
+{
+    _internal->parserContext = xmlCreatePushParserCtxt( _internal->saxHandler, self,
+                                                       (const char *)(length > 0 ? buf : NULL),
+                                                       length, NULL );
+    
+    int options = [self shouldResolveExternalEntities] ? 
+    XML_PARSE_RECOVER | XML_PARSE_NOENT | XML_PARSE_DTDLOAD :
+    XML_PARSE_RECOVER | XML_PARSE_DTDATTR;
+    
+    xmlCtxtUseOptions( _internal->parserContext, options );
+}
+
+- (void) _pushXMLData: (const void *) bytes length: (NSUInteger) length
+{
+    if ( _internal->parserContext == NULL )
+    {
+        [self _initializeParserWithBytes: bytes length: length];
+    }
+    else
+    {
+        int err = xmlParseChunk( _internal->parserContext, (const char *)bytes, length, 0 );
+        if ( err != XML_ERR_OK )
+        {
+            [self _setParserError: err];
+            _streamComplete = YES;
+        }
+    }
 }
 
 - (_AQXMLParserInternal *) _info

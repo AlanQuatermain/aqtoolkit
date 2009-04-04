@@ -41,6 +41,20 @@
 @class _AQXMLParserInternal;
 @protocol AQXMLParserDelegate;
 
+extern NSString * const AQXMLParserParsingRunLoopMode;
+
+// iPhone 3 & OS X 10.6 both define NS_NONATOMIC_IPHONEONLY, but it doesn't work
+//  (it doesn't take commas into account) so I'm redefining it here
+#ifdef NS_NONATOMIC_IPHONEONLY
+# undef NS_NONATOMIC_IPHONEONLY
+#endif
+
+#ifdef TARGET_OS_IPHONE
+# define NS_NONATOMIC_IPHONEONLY nonatomic,
+#else
+# define NS_NONATOMIC_IPHONEONLY
+#endif
+
 // delegates should implement the same functions used by AQXMLParser
 
 @interface AQXMLParser : NSObject
@@ -54,27 +68,27 @@
 
 - (id) initWithStream: (NSInputStream *) stream;
 
-@property (assign) id<AQXMLParserDelegate> __weak delegate;
+@property (NS_NONATOMIC_IPHONEONLY assign) id<AQXMLParserDelegate> __weak delegate;
 
-@property (assign) BOOL shouldProcessNamespaces;
-@property (assign) BOOL shouldReportNamespacePrefixes;
-@property (assign) BOOL shouldResolveExternalEntities;
+@property (NS_NONATOMIC_IPHONEONLY assign) BOOL shouldProcessNamespaces;
+@property (NS_NONATOMIC_IPHONEONLY assign) BOOL shouldReportNamespacePrefixes;
+@property (NS_NONATOMIC_IPHONEONLY assign) BOOL shouldResolveExternalEntities;
 
 - (BOOL) parse;
 - (void) abortParsing;
 
-@property (readonly) NSError * parserError;
+@property (NS_NONATOMIC_IPHONEONLY readonly) NSError * parserError;
 
 @end
 
 @interface AQXMLParser (AQXMLParserLocatorAdditions)
-@property (readonly, retain) NSString * publicID;
-@property (readonly, retain) NSString * systemID;
-@property (readonly) NSInteger lineNumber;
-@property (readonly) NSInteger columnNumber;
+@property (nonatomic, readonly, retain) NSString * publicID;
+@property (nonatomic, readonly, retain) NSString * systemID;
+@property (nonatomic, readonly) NSInteger lineNumber;
+@property (nonatomic, readonly) NSInteger columnNumber;
 @end
 
-// tweaked versions of the delegate functions, accepting AQXMLParser instead of AQXMLParser (gets rid of compiler warnings)
+// tweaked versions of the delegate functions, accepting AQXMLParser instead of NSXMLParser (gets rid of compiler warnings)
 
 /*
  
