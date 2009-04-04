@@ -63,7 +63,7 @@
 								   version: (NSString *) httpVersion
 {
 	CFHTTPMessageRef message = CFHTTPMessageCreateRequest( kCFAllocatorDefault, (CFStringRef)method,
-                                                          (CFURLRef)[url absoluteURL], (CFStringRef)httpVersion );
+                                                           (CFURLRef)[url absoluteURL], (CFStringRef)httpVersion );
 	HTTPMessage * result = [[self alloc] initWithCFHTTPMessageRef: message];
     CFRelease( message );
     return ( [result autorelease] );
@@ -74,7 +74,7 @@
 										version: (NSString *) httpVersion
 {
 	CFHTTPMessageRef message = CFHTTPMessageCreateResponse( kCFAllocatorDefault, (CFIndex)statusCode,
-                                                           (CFStringRef)statusDescription, (CFStringRef)httpVersion );
+                                                            (CFStringRef)statusDescription, (CFStringRef)httpVersion );
 	HTTPMessage * result = [[self alloc] initWithCFHTTPMessageRef: message];
     CFRelease( message );
     return ( [result autorelease] );
