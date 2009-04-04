@@ -100,6 +100,13 @@ enum
 	return ( self );
 }
 
+- (void) dealloc
+{
+    [_stream release];
+    [_chunk release];
+    [super dealloc];
+}
+
 - (BOOL) getNextChunk
 {
 	if ( _flags.chunkType == kFirstChunk )
