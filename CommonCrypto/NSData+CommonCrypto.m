@@ -360,7 +360,7 @@ static void FixKeyLengths( CCAlgorithm algorithm, NSMutableData * keyData, NSMut
 		return ( nil );
 	}
 	
-	return ( [NSData dataWithBytesNoCopy: buf length: bufsize] );
+	return ( [NSData dataWithBytesNoCopy: buf length: bufused] );
 }
 
 - (NSData *) dataEncryptedUsingAlgorithm: (CCAlgorithm) algorithm
