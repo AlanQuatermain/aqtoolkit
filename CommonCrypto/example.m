@@ -93,13 +93,13 @@ static void usage( void )
 	fprintf( stderr, "    [-k|--string-key]=KEY   Specify a key as a string in UTF-8 format.\n" );
 	fprintf( stderr, "    [-x|--binary-key]=FILE  Path to a file containing binary data to be used as a key.\n" );
 	fprintf( stderr, "    [-a|--algorithm]=ALGO   Specify the encryption algorithm to use, from the following:\n" );
-	fprintf( stderr, "    [-v|--input-vector]=IV  Supply an algorithm initialization vector as a string.\n" );
-	fprintf( stderr, "    [-h|--help]             Display this information.\n" );
 	fprintf( stderr, "         - AES (the default)\n" );
 	fprintf( stderr, "         - DES\n" );
 	fprintf( stderr, "         - 3DES\n" );
 	fprintf( stderr, "         - CAST\n" );
 	fprintf( stderr, "         - RC4\n" );
+	fprintf( stderr, "    [-v|--input-vector]=IV  Supply an algorithm initialization vector as a string.\n" );
+	fprintf( stderr, "    [-h|--help]             Display this information.\n" );
 	fflush( stderr );
 	[gAutoreleasePool drain];
 	exit( EX_USAGE );
