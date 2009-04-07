@@ -51,15 +51,27 @@
 
 static void usage( void ) __dead2;
 
-static const char *     _shortCommandLineArgs = "f:u:h";
+static const char *     _shortCommandLineArgs = "f:u:ndmah";
 static struct option    _longCommandLineArgs[] = {
     { "file", required_argument, NULL, 'f'},
     { "url", required_argument, NULL, 'u' },
+    { "nsxmlparser", no_argument, NULL, 'n' },
+    { "nsxmldocument", no_argument, NULL, 'd' },
+    { "mapped-nsxmlparser", no_argument, NULL, 'm' },
+    { "aqxmlparser", no_argument, NULL, 'a' },
     { "help", no_argument, NULL, 'h' },
     { NULL, 0, NULL, 0 }
 };
 
-#pragma mark -
+enum
+{
+    Test_NSXMLParserWithURL,
+    Test_NSXMLParserWithMappedData,
+    Test_NSXMLDocument,
+    Test_AQXMLParser
+};
+
+# pragma mark -
 
 static void usage( void )
 {
@@ -74,11 +86,16 @@ static void usage( void )
              "AQXMLParser which reads data from a stream.\n\n" );
     fprintf( stderr, "Usage: ParserComparison [OPTIONS]\n" );
     fprintf( stderr, "  Options:\n" );
-    fprintf( stderr, "    [-f|--file]=FILE    Path to an XML file to load.\n" );
-    fprintf( stderr, "    [-u|--url]=URL      URL for an XML file to load. Must not require\n"
-                     "                        authentication to access.\n" );
-    fprintf( stderr, "    [-h|--help]         Display this message.\n" );
-    fprintf( stderr, "If both -f and -u options are provided, -u takes precedence.\n" );
+    fprintf( stderr, "    [-f|--file]=FILE           Path to an XML file to load.\n" );
+    fprintf( stderr, "    [-u|--url]=URL             URL for an XML file to load. Must not require\n"
+                     "                               authentication to access.\n" );
+    fprintf( stderr, "    [-n|--nsxmlparser          Run NSXMLParser test direct from URL.\n" );
+    fprintf( stderr, "    [-m|--mapped-nsxmlparser]  Run NSXMLParser test using mapped data\n" );
+    fprintf( stderr, "    [-d|--nsxmldocument]       Run NSXMLDocument test direct from URL.\n" );
+    fprintf( stderr, "    [-a|--aqxmlparser]         Run AQXMLParser test (default).\n" );
+    fprintf( stderr, "    [-h|--help]                Display this message.\n\n" );
+    fprintf( stderr, "If both -f and -u options are provided, -u takes precedence. If more than\n"
+                     "one test-run argument is provided, runs the last one specified.\n" );
     fflush( stderr );
     exit( EX_USAGE );
 }
@@ -132,6 +149,20 @@ static void usage( void )
 
 #pragma mark -
 
+static void RunNSDocumentTest( NSURL * url )
+{
+    fprintf( stdout, "Testing NSXMLDocument...\n" );
+    
+    mach_vm_size_t start = GetProcessMemoryUsage();
+    NSXMLDocument * doc = [[NSXMLDocument alloc] initWithContentsOfURL: url
+                                                               options: NSXMLDocumentTidyXML
+                                                                 error: NULL];
+    mach_vm_size_t end = GetProcessMemoryUsage();
+    [doc release];
+    
+    fprintf( stdout, "Peak VM usage: %llu bytes\n", (end - start) );
+}
+
 static void RunNSParserTest( NSURL * url )
 {
     NSXMLParser * parser = [[NSXMLParser alloc] initWithContentsOfURL: url];
@@ -142,7 +173,7 @@ static void RunNSParserTest( NSURL * url )
     
     delegate.startVMSize = GetProcessMemoryUsage();
     
-    BOOL ok = [parser parse];
+    (void) [parser parse];
     
     fprintf( stdout, "Parsed %lu numbers\n", (unsigned long)[delegate.set count] );
     fprintf( stdout, "Peak VM usage: %llu bytes\n", delegate.maxVMSize );
@@ -176,7 +207,7 @@ static void RunMappedNSParserTest( NSURL * url )
     
     delegate.startVMSize = GetProcessMemoryUsage();
     
-    BOOL ok = [parser parse];
+    (void) [parser parse];
     
     fprintf( stdout, "Parsed %lu numbers\n", (unsigned long)[delegate.set count] );
     fprintf( stdout, "Peak VM usage: %llu bytes\n", delegate.maxVMSize );
@@ -211,7 +242,7 @@ static void RunAQParserTest( NSURL * url )
     
     delegate.startVMSize = GetProcessMemoryUsage();
     
-    BOOL ok = [parser parse];
+    (void) [parser parse];
     
     fprintf( stdout, "Parsed %lu numbers\n", (unsigned long)[delegate.set count] );
     fprintf( stdout, "Peak VM usage: %llu bytes\n", delegate.maxVMSize );
@@ -227,6 +258,7 @@ int main (int argc, char * const argv[])
     const char * fileStr = NULL;
     const char * urlStr  = NULL;
     int ch = -1;
+    int test = Test_AQXMLParser;
     
     while ( (ch = getopt_long(argc, argv, _shortCommandLineArgs, _longCommandLineArgs, NULL)) != -1 )
     {
@@ -243,6 +275,22 @@ int main (int argc, char * const argv[])
                 
             case 'u':
                 urlStr = optarg;
+                break;
+                
+            case 'n':
+                test = Test_NSXMLParserWithURL;
+                break;
+                
+            case 'm':
+                test = Test_NSXMLParserWithMappedData;
+                break;
+                
+            case 'd':
+                test = Test_NSXMLDocument;
+                break;
+                
+            case 'a':
+                test = Test_AQXMLParser;
                 break;
         }
     }
@@ -275,10 +323,26 @@ int main (int argc, char * const argv[])
         [pool drain];
         usage();        // dead call, terminates program
     }
-    
-    RunNSParserTest( url );
-    RunMappedNSParserTest( url );
-    RunAQParserTest( url );
+
+    switch ( test )
+    {
+        case Test_NSXMLDocument:
+            RunNSDocumentTest( url );
+            break;
+            
+        case Test_NSXMLParserWithURL:
+            RunNSParserTest( url );
+            break;
+            
+        case Test_NSXMLParserWithMappedData:
+            RunMappedNSParserTest( url );
+            break;
+            
+        default:
+        case Test_AQXMLParser:
+            RunAQParserTest( url );
+            break;
+    }
     
     [pool drain];
     
