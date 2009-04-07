@@ -353,9 +353,9 @@ static void __endElementNS( void * ctx, const xmlChar * localname, const xmlChar
 	
 	NSString * completeStr = nil;
 	if ( [prefixStr length] != 0 )
-		completeStr = [[[NSString alloc] initWithFormat: @"%@:%@", prefixStr, localnameStr] autorelease];
+		completeStr = [[NSString alloc] initWithFormat: @"%@:%@", prefixStr, localnameStr];
 	else
-		completeStr = [[localnameStr retain] autorelease];
+		completeStr = [localnameStr retain];
 	
 	NSString * uriStr = NSStringFromXmlChar(URI);
 	
@@ -380,6 +380,7 @@ static void __endElementNS( void * ctx, const xmlChar * localname, const xmlChar
 	
 	[prefixStr release];
 	[localnameStr release];
+    [completeStr release];
 	[uriStr release];
 }
 
@@ -509,9 +510,9 @@ static void __startElementNS( void * ctx, const xmlChar *localname, const xmlCha
 	
 	NSString * completeStr = nil;
 	if ( [prefixStr length] != 0 )
-		completeStr = [[[NSString alloc] initWithFormat: @"%@:%@", prefixStr, localnameStr] autorelease];
+		completeStr = [[NSString alloc] initWithFormat: @"%@:%@", prefixStr, localnameStr];
 	else
-		completeStr = [[localnameStr retain] autorelease];
+		completeStr = [localnameStr retain];
 	
 	NSString * uriStr = nil;
 	if ( processNS )
@@ -570,9 +571,9 @@ static void __startElementNS( void * ctx, const xmlChar *localname, const xmlCha
 		
 		NSString * attrQualified = nil;
 		if ( [attrPrefix length] != 0 )
-			attrQualified = [[[NSString alloc] initWithFormat: @"%@:%@", attrPrefix, attrLocalName] autorelease];
+			attrQualified = [[NSString alloc] initWithFormat: @"%@:%@", attrPrefix, attrLocalName];
 		else
-			attrQualified = [[attrLocalName retain] autorelease];
+			attrQualified = [attrLocalName retain];
 		
 		[attrPrefix release];
 		
