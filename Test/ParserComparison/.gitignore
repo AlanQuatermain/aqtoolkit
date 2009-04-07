@@ -1,0 +1,5 @@
+.DS_Store
+build
+*.xml
+*.xcodeproj/*.pbxuser
+*.xcodeproj/*.mode1v3

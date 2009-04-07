@@ -1,0 +1,7 @@
+//
+// Prefix header for all source files of the 'ParserComparison' target in the 'ParserComparison' project.
+//
+
+#ifdef __OBJC__
+    #import <Foundation/Foundation.h>
+#endif
