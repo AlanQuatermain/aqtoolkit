@@ -315,7 +315,7 @@ enum
 		
 		// wait for data to arrive
 		FD_SET( _descriptor, &fds );
-		struct timespec timeout = { 0, 200000000000 };		// 0.2 seconds
+		struct timespec timeout = { 0, 200000000 };		// 0.2 seconds
 		int ret = pselect( _descriptor + 1, &fds, NULL, NULL, &timeout, NULL );
 		if ( ret == -1 )
 			continue;
