@@ -88,4 +88,15 @@
 */
 - (NSString *) filePath;
 
+/*!
+    @method     
+    @abstract   Delete any temp files created through this NSFileHandle category.
+    @discussion
+    This feels slightly hacky, but it gives a simple way to clean up any temporary
+    files created when your application exits.  It doesn't take into account any
+    files you have deleted yourself, but it won't balk at them either.
+*/
++ (void) deleteTemporaryFiles;
+
+
 @end

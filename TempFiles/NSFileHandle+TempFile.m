@@ -40,7 +40,25 @@
 #import <sys/fcntl.h>
 #import <sys/param.h>
 
+static NSMutableSet * __tempFileStore = nil;
+
 @implementation NSFileHandle (AQTempFile)
+
++ (void) initializeTempFileStore
+{
+    if ( __tempFileStore != nil )
+        return;
+    
+    // double-checked locking can bite you. This routine is designed for
+    //  rare use, so it shouldn't be a problem here, but to understand
+    //  why it's often a bad idea, look here:
+    //  http://www.aristeia.com/Papers/DDJ_Jul_Aug_2004_revised.pdf
+    @synchronized(self)
+    {
+        if ( __tempFileStore == nil )
+            __tempFileStore = [[NSMutableSet alloc] init];
+    }
+}
 
 + (NSFileHandle *) tempFile
 {
@@ -72,6 +90,13 @@
     if ( fd == -1 )
         return ( nil );
     
+    [[self class] initializeTempFileStore];
+    
+    @synchronized(__tempFileStore)
+    {
+        [__tempFileStore addObject: [NSString stringWithUTF8String: cStr]];
+    }
+    
     return ( [self initWithFileDescriptor: fd] );
 }
 
@@ -97,6 +122,24 @@
         return ( nil );
     
     return ( [NSString stringWithUTF8String: buf] );
+}
+
++ (void) deleteTemporaryFiles
+{
+    if ( __tempFileStore == nil )
+        return;
+    
+    @synchronized(__tempFileStore)
+    {
+        NSFileManager * fm = [NSFileManager defaultManager];
+        
+        for ( NSString * path in [__tempFileStore allObjects] )
+        {
+            [fm removeItemAtPath: path error: NULL];
+        }
+        
+        [__tempFileStore removeAllObjects];
+    }
 }
 
 @end
