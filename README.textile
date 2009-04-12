@@ -81,3 +81,18 @@ This is the latest attempt to manage the download/parse sequence in Outpost. It'
 Beyond the requirement of a stream, it is initialized, setup, and used in the same way as a standard NSXMLParser. Note that, for compile-time type checking, the delegate routines for AQXMLParser are declared again here, with AQXMLParser replacing NSXMLParser. These routines are now also declared inside a protocol using the @optional keyword, to match the new delegation API constructs used in the iPhone SDK.
 
 AQXMLParser is fully gc-compliant, or can be used in a managed-memory environment.
+
+h3. TempFiles
+
+This folder contains three categories designed to be useful when creating temporary files:
+
+* NSString -- adds a @uuidString@ function to return a UUID string. Uses CFUUIDRef internally to generate the UUID.
+* NSFileManager -- adds three functions to generate a temporary file name. Uses mktemp() internally to generate a name which is guaranteed to be unique at the time of the call.
+* NSFileHandle -- adds three methods similar to those in NSFileManager to create a new temporary file. Uses mkstemp() internally to test and create the file in one step, avoiding the race condition between test & creation.
+
+The NSFileManager and NSFileHandle temp-file routines have three forms:
+# Create a randomly-named file within NSTemporaryDirectory() (usually somewhere inside /tmp/[user_id]), under a new folder named the same as the current process (i.e. NSTemporaryDirectory()/app_name/temp_file)
+# Create a randomly-named file within a folder of your choosing (i.e. folder_name/temp_file)
+# Create a randomly-named file within NSTemporaryDirectory(), under a new folder whose name you specify (i.e. NSTemporaryDirectory()/folder_name/temp_file).
+
+All three categories are compatible with garbage collection or manual memory management.
