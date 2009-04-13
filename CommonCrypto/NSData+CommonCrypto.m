@@ -343,6 +343,7 @@ static void FixKeyLengths( CCAlgorithm algorithm, NSMutableData * keyData, NSMut
 	size_t bufsize = CCCryptorGetOutputLength( cryptor, (size_t)[self length], true );
 	void * buf = malloc( bufsize );
 	size_t bufused = 0;
+    size_t bytesTotal = 0;
 	*status = CCCryptorUpdate( cryptor, [self bytes], (size_t)[self length], 
 							  buf, bufsize, &bufused );
 	if ( *status != kCCSuccess )
@@ -350,6 +351,8 @@ static void FixKeyLengths( CCAlgorithm algorithm, NSMutableData * keyData, NSMut
 		free( buf );
 		return ( nil );
 	}
+    
+    bytesTotal += bufused;
 	
 	// From Brent Royal-Gordon (Twitter: architechies):
 	//  Need to update buf ptr past used bytes when calling CCCryptorFinal()
@@ -359,8 +362,10 @@ static void FixKeyLengths( CCAlgorithm algorithm, NSMutableData * keyData, NSMut
 		free( buf );
 		return ( nil );
 	}
+    
+    bytesTotal += bufused;
 	
-	return ( [NSData dataWithBytesNoCopy: buf length: bufused] );
+	return ( [NSData dataWithBytesNoCopy: buf length: bytesTotal] );
 }
 
 - (NSData *) dataEncryptedUsingAlgorithm: (CCAlgorithm) algorithm
