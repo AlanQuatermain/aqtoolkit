@@ -738,8 +738,10 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 
 - (id) initWithData: (NSData *) data
 {
-    NSInputStream * stream = [[[NSInputStream alloc] initWithData: data] autorelease];
-    return ( [self initWithStream: stream] );
+    NSInputStream * stream = [[NSInputStream alloc] initWithData: data];
+    id result = [self initWithStream: stream];
+    [stream release];
+    return ( result );
 }
 
 - (void) dealloc
