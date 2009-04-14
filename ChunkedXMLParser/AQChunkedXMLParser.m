@@ -36,6 +36,9 @@
  *
  */
 
+// access to _NSXMLParserInfo class and to member variables doesn't work with 64-bit ObjC ABI
+#ifndef __LP64__
+
 #import "AQChunkedXMLParser.h"
 #import <libxml/parser.h>		// add /usr/include/libxml2 to header search paths
 
@@ -152,3 +155,5 @@
 }
 
 @end
+
+#endif  // __LP64__

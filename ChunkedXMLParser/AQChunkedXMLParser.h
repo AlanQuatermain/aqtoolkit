@@ -36,6 +36,9 @@
  *
  */
 
+// access to _NSXMLParserInfo class and to member variables doesn't work with 64-bit ObjC ABI
+#ifndef __LP64__
+
 #import <Cocoa/Cocoa.h>
 #import "AQChunkedXMLData.h"
 
@@ -47,3 +50,5 @@
 - (BOOL) parse;
 
 @end
+
+#endif  // __LP64__
