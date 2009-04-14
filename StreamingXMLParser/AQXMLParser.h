@@ -66,13 +66,17 @@ extern NSString * const AQXMLParserParsingRunLoopMode;
 	BOOL							_streamComplete;
 }
 
+// designated initializer
 - (id) initWithStream: (NSInputStream *) stream;
+
+- (id) initWithData: (NSData *) data;   // creates a stream from the data
 
 @property (NS_NONATOMIC_IPHONEONLY assign) id<AQXMLParserDelegate> __weak delegate;
 
 @property (NS_NONATOMIC_IPHONEONLY assign) BOOL shouldProcessNamespaces;
 @property (NS_NONATOMIC_IPHONEONLY assign) BOOL shouldReportNamespacePrefixes;
 @property (NS_NONATOMIC_IPHONEONLY assign) BOOL shouldResolveExternalEntities;
+@property (NS_NONATOMIC_IPHONEONLY assign, getter=isInHTMLMode) BOOL HTMLMode;
 
 - (BOOL) parse;
 - (void) abortParsing;
