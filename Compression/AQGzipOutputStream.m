@@ -266,4 +266,14 @@
     return ( _internal.inputRoom > 0 );
 }
 
+- (id) propertyForKey: (NSString *) key
+{
+    return ( [_outputStream propertyForKey: key] );
+}
+
+- (void) setProperty: (id) property forKey: (NSString *) key
+{
+    [_outputStream setProperty: property forKey: key];
+}
+
 @end

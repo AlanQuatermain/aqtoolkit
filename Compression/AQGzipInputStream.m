@@ -285,4 +285,14 @@
     return ( _internal.outputAvailable > 0 );
 }
 
+- (id) propertyForKey: (NSString *) key
+{
+    return ( [_compressedDataStream propertyForKey: key] );
+}
+
+- (void) setProperty: (id) property forKey: (NSString *) key
+{
+    [_compressedDataStream setProperty: property forKey: key];
+}
+
 @end
