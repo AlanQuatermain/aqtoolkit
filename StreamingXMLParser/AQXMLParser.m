@@ -48,6 +48,12 @@
 #import <libxml/encoding.h>
 #import <libxml/entities.h>
 
+#if TARGET_OS_IPHONE
+# import <CFNetwork/CFNetwork.h>
+#else
+# import <CoreServices/../Frameworks/CFNetwork.framework/Headers/CFNetwork.h>
+#endif
+
 NSString * const AQXMLParserParsingRunLoopMode = @"AQXMLParserParsingRunLoopMode";
 
 @interface _AQXMLParserInternal : NSObject
@@ -62,6 +68,16 @@ NSString * const AQXMLParserParsingRunLoopMode = @"AQXMLParserParsingRunLoopMode
 	NSError *			error;
 	NSMutableArray *	namespaces;
 	BOOL				delegateAborted;
+    
+    // async parse callback data
+    id                  asyncDelegate;
+    SEL                 asyncSelector;
+    void *              asyncContext;
+    
+    // progress variables
+    float               expectedDataLength;
+    float               currentLength;
+    
 }
 @property (nonatomic, readonly) xmlSAXHandlerPtr xmlSaxHandler;
 @property (nonatomic, readonly) xmlParserCtxtPtr xmlParserContext;
@@ -114,6 +130,8 @@ enum
 - (void) _initializeParserWithBytes: (const void *) buf length: (NSUInteger) length;
 - (void) _pushXMLData: (const void *) bytes length: (NSUInteger) length;
 - (_AQXMLParserInternal *) _info;
+- (void) _setStreamComplete: (BOOL) parsedOK;
+- (void) _setupExpectedLength;
 @end
 
 #pragma mark -
@@ -200,7 +218,7 @@ static void __characters( void * ctx, const xmlChar * ch, int len )
 	AQXMLParser * parser = (AQXMLParser *) ctx;
 	xmlParserCtxtPtr p = [parser _xmlParserContext];
 	
-	if ( (int)(p->_private) == 1 )
+	if ( (long)(p->_private) == 1 )
 	{
 		p->_private = 0;
 		return;
@@ -714,6 +732,7 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 @implementation AQXMLParser
 
 @synthesize delegate=_delegate;
+@synthesize progressDelegate=_progressDelegate;
 
 - (id) initWithStream: (NSInputStream *) stream
 {
@@ -730,6 +749,8 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 	_internal->error = nil;
 	
 	_stream = [stream retain];
+    if ( _internal->expectedDataLength != 0.0 )
+        [self _setupExpectedLength];
 	
 	[self _initializeSAX2Callbacks];
 	
@@ -739,6 +760,7 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 - (id) initWithData: (NSData *) data
 {
     NSInputStream * stream = [[NSInputStream alloc] initWithData: data];
+    _internal->expectedDataLength = (float) [data length];
     id result = [self initWithStream: stream];
     [stream release];
     return ( result );
@@ -858,7 +880,40 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 
 - (BOOL) parse
 {
-	if ( _stream == nil )
+	if ( [self parseAsynchronouslyUsingRunLoop: [NSRunLoop currentRunLoop]
+                                          mode: AQXMLParserParsingRunLoopMode
+                             notifyingDelegate: nil
+                                      selector: NULL
+                                       context: NULL] == NO )
+    {
+        return ( NO );
+    }
+	
+	// run in the common runloop modes while we read the data from the stream
+	do
+	{
+		NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+		[[NSRunLoop currentRunLoop] runMode: AQXMLParserParsingRunLoopMode
+                                 beforeDate: [NSDate distantFuture]];
+		[pool drain];
+		
+	} while ( _streamComplete == NO );
+	
+	[_stream setDelegate: nil];
+	[_stream removeFromRunLoop: [NSRunLoop currentRunLoop]
+                       forMode: AQXMLParserParsingRunLoopMode];
+	[_stream close];
+	
+	return ( _internal->error == nil );
+}
+
+- (BOOL) parseAsynchronouslyUsingRunLoop: (NSRunLoop *) runloop
+                                    mode: (NSString *) mode
+                       notifyingDelegate: (id) asyncCompletionDelegate
+                                selector: (SEL) completionSelector
+                                 context: (void *) contextPtr
+{
+    if ( _stream == nil )
 		return ( NO );
 	
 	xmlSAXHandlerPtr saxHandler = NULL;
@@ -878,28 +933,20 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 		buflen = [_stream read: buf maxLength: 4];
         [self _initializeParserWithBytes: buf length: buflen];
     }
+    
+    // store async callbacks details
+    _internal->asyncDelegate = asyncCompletionDelegate;
+    _internal->asyncSelector = completionSelector;
+    _internal->asyncContext  = contextPtr;
 	
 	// start the stream processing going
 	[_stream setDelegate: self];
-	[_stream scheduleInRunLoop: [NSRunLoop currentRunLoop] forMode: AQXMLParserParsingRunLoopMode];
+	[_stream scheduleInRunLoop: runloop forMode: mode];
 	
 	if ( [_stream streamStatus] == NSStreamStatusNotOpen )
 		[_stream open];
-	
-	// run in the common runloop modes while we read the data from the stream
-	do
-	{
-		NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-		[[NSRunLoop currentRunLoop] runMode: AQXMLParserParsingRunLoopMode beforeDate: [NSDate distantFuture]];
-		[pool drain];
-		
-	} while ( _streamComplete == NO );
-	
-	[_stream setDelegate: nil];
-	[_stream removeFromRunLoop: [NSRunLoop currentRunLoop] forMode: AQXMLParserParsingRunLoopMode];
-	[_stream close];
-	
-	return ( _internal->error == nil );
+    
+    return ( YES );
 }
 
 - (void) stream: (NSStream *) stream handleEvent: (NSStreamEvent) streamEvent
@@ -917,14 +964,14 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 			_internal->error = [input streamError];
 			if ( [_delegate respondsToSelector: @selector(parser:parseErrorOccurred:)] )
 				[_delegate parser: self parseErrorOccurred: _internal->error];
-			_streamComplete = YES;
+			[self _setStreamComplete: NO];
 			break;
 		}
 			
 		case NSStreamEventEndEncountered:
 		{
 			xmlParseChunk( _internal->parserContext, NULL, 0, 1 );
-			_streamComplete = YES;
+			[self _setStreamComplete: YES];
 			break;
 		}
 			
@@ -1126,19 +1173,80 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
         if ( self.HTMLMode )
             err = htmlParseChunk( _internal.htmlParserContext, (const char *)bytes, length, 0 );
         else
-            err = xmlParseChunk( _internal->parserContext, (const char *)bytes, length, 0 );
+            err = xmlParseChunk( _internal.xmlParserContext, (const char *)bytes, length, 0 );
         
         if ( err != XML_ERR_OK )
         {
             [self _setParserError: err];
-            _streamComplete = YES;
+            [self _setStreamComplete: NO];
         }
+    }
+    
+    if ( _progressDelegate != nil )
+    {
+        _internal->currentLength += (float) length;
+        [_progressDelegate parser: self
+                   updateProgress: (_internal->currentLength / _internal->expectedDataLength)];
     }
 }
 
 - (_AQXMLParserInternal *) _info
 {
 	return ( _internal );
+}
+
+- (void) _setStreamComplete: (BOOL) parsedOK
+{
+    _streamComplete = YES;
+    
+    if ( _internal->asyncDelegate != nil )
+    {
+        @try
+        {
+            NSInvocation * invoc = [NSInvocation invocationWithMethodSignature: [_internal->asyncDelegate methodSignatureForSelector: _internal->asyncSelector]];
+            
+            [invoc setTarget: _internal->asyncDelegate];
+            [invoc setSelector: _internal->asyncSelector];
+            [invoc setArgument: &self atIndex: 2];
+            [invoc setArgument: &parsedOK atIndex: 3];
+            [invoc setArgument: &_internal->asyncContext atIndex: 4];
+            
+            [invoc invoke];
+        }
+        @catch (NSException * e)
+        {
+            NSLog( @"Caught %@ while calling AQXMLParser async delegate: %@", e.name, e.reason );
+            @throw;
+        }
+    }
+}
+
+- (void) _setupExpectedLength
+{
+    CFHTTPMessageRef msg = (CFHTTPMessageRef) [_stream propertyForKey: (NSString *)kCFStreamPropertyHTTPResponseHeader];
+    if ( msg != NULL )
+    {
+        CFStringRef str = CFHTTPMessageCopyHeaderFieldValue( msg, CFSTR("Content-Length") );
+        if ( str != NULL )
+        {
+            _internal->expectedDataLength = [(NSString *)str floatValue];
+            CFRelease( str );
+        }
+        return;
+    }
+    
+    CFNumberRef num = (CFNumberRef) [_stream propertyForKey: (NSString *)kCFStreamPropertyFTPResourceSize];
+    if ( num != NULL )
+    {
+        _internal->expectedDataLength = [(NSNumber *)num floatValue];
+        CFRelease( num );
+        return;
+    }
+    
+    // for some forthcoming stream classes...
+    NSNumber * guess = [_stream propertyForKey: @"UncompressedDataLength"];
+    if ( guess != nil )
+        _internal->expectedDataLength = [guess floatValue];
 }
 
 @end

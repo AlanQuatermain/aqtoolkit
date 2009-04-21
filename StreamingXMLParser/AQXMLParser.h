@@ -37,33 +37,23 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "iPhoneNonatomic.h"
 
 @class _AQXMLParserInternal;
-@protocol AQXMLParserDelegate;
+@protocol AQXMLParserDelegate, AQXMLParserProgressDelegate;
 
 extern NSString * const AQXMLParserParsingRunLoopMode;
-
-// iPhone 3 & OS X 10.6 both define NS_NONATOMIC_IPHONEONLY, but it doesn't work
-//  (it doesn't take commas into account) so I'm redefining it here
-#ifdef NS_NONATOMIC_IPHONEONLY
-# undef NS_NONATOMIC_IPHONEONLY
-#endif
-
-#ifdef TARGET_OS_IPHONE
-# define NS_NONATOMIC_IPHONEONLY nonatomic,
-#else
-# define NS_NONATOMIC_IPHONEONLY
-#endif
 
 // delegates should implement the same functions used by AQXMLParser
 
 @interface AQXMLParser : NSObject
 {
-	void *							_parser;
-	id<AQXMLParserDelegate> __weak	_delegate;
-	NSInputStream *					_stream;
-	_AQXMLParserInternal *			_internal;
-	BOOL							_streamComplete;
+	void *                                  _parser;
+	id<AQXMLParserDelegate> __weak          _delegate;
+    id<AQXMLParserProgressDelegate> __weak  _progressDelegate;
+	NSInputStream *                         _stream;
+	_AQXMLParserInternal *                  _internal;
+	BOOL                                    _streamComplete;
 }
 
 // designated initializer
@@ -72,6 +62,7 @@ extern NSString * const AQXMLParserParsingRunLoopMode;
 - (id) initWithData: (NSData *) data;   // creates a stream from the data
 
 @property (NS_NONATOMIC_IPHONEONLY assign) id<AQXMLParserDelegate> __weak delegate;
+@property (NS_NONATOMIC_IPHONEONLY assign) id<AQXMLParserProgressDelegate> __weak progressDelegate;
 
 @property (NS_NONATOMIC_IPHONEONLY assign) BOOL shouldProcessNamespaces;
 @property (NS_NONATOMIC_IPHONEONLY assign) BOOL shouldReportNamespacePrefixes;
@@ -81,7 +72,17 @@ extern NSString * const AQXMLParserParsingRunLoopMode;
 - (BOOL) parse;
 - (void) abortParsing;
 
-@property (NS_NONATOMIC_IPHONEONLY readonly) NSError * parserError;
+// asynchronous parsing on the given runloop/mode
+// completionSelector should match the following structure:
+// - (void) xmlParser: (AQXMLParser *) parser completedOK: (BOOL) parsedOK context: (void *) context;
+// completionSelector will be called in the context of the supplied runloop
+- (BOOL) parseAsynchronouslyUsingRunLoop: (NSRunLoop *) runloop
+                                    mode: (NSString *) mode
+                       notifyingDelegate: (id) asyncCompletionDelegate
+                                selector: (SEL) completionSelector
+                                 context: (void *) contextPtr;
+
+@property NS_NONATOMIC_IPHONEONLY(readonly) NSError * parserError;
 
 @end
 
@@ -90,6 +91,11 @@ extern NSString * const AQXMLParserParsingRunLoopMode;
 @property (nonatomic, readonly, retain) NSString * systemID;
 @property (nonatomic, readonly) NSInteger lineNumber;
 @property (nonatomic, readonly) NSInteger columnNumber;
+@end
+
+// parser reports progress as a value between 0.0 and 1.0
+@protocol AQXMLParserProgressDelegate <NSObject>
+- (void) parser: (AQXMLParser *) parser updateProgress: (float) progress;
 @end
 
 // tweaked versions of the delegate functions, accepting AQXMLParser instead of NSXMLParser (gets rid of compiler warnings)
