@@ -136,12 +136,9 @@
             if ( _internal.inputRoom == 0 )
                 break;
             
-            NSInteger numRead = [_compressedDataStream read: _internal.inputPtr
-                                                  maxLength: _internal.inputRoom];
+            NSInteger numRead = [_internal writeInputFromStream: _compressedDataStream];
             if ( numRead > 0 )
             {
-                _internal.avail_in += numRead;
-                _internal.writeOffset += numRead;
                 int status = Z_OK;
                 if ( _internal.status == NSStreamStatusOpening )
                 {
@@ -256,18 +253,24 @@
         // we fake the event, because we've probably been ignoring it for a while
         if ( [_compressedDataStream hasBytesAvailable] )
             [self stream: _compressedDataStream handleEvent: NSStreamEventHasBytesAvailable];
+    }/*
+    else
+    {
+        // read the amount requested, setup variables in the zlib stream
+        [_internal readOutputToBuffer: buffer + totalRead length: len];
+        totalRead += len;
         
-        return ( totalRead );
+        [_internal setStatusForStream: _compressedDataStream];
+    }*/
+    else if ( _internal.outputAvailable > 0 )
+    {
+        // there's more data left to be read, so we'll post another event
+        [_internal postStreamEvent: NSStreamEventHasBytesAvailable];
     }
     
-    // read the amount requested, setup variables in the zlib stream
-    [_internal readOutputToBuffer: buffer + totalRead length: len];
-    totalRead += len;
+    if ( _internal.status == NSStreamStatusReading )
+        _internal.status = NSStreamStatusOpen;
     
-    [_internal setStatusForStream: _compressedDataStream];
-    
-    // there's more data left to be read, so we'll post another event
-    [_internal postStreamEvent: NSStreamEventHasBytesAvailable];
     return ( totalRead );
 }
 

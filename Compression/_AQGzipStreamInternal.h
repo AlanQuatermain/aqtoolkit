@@ -106,6 +106,8 @@
 @property (nonatomic, readonly) const void * outputPtr;
 
 - (NSInteger) writeInputFromBuffer: (const void *) buffer length: (NSInteger) length;
+- (NSInteger) writeInputFromStream: (NSInputStream *) stream;
 - (NSInteger) readOutputToBuffer: (void *) buffer length: (NSInteger) length;
+- (NSInteger) readOutputToStream: (NSOutputStream *) stream;
 
 @end

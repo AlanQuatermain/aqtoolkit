@@ -40,6 +40,28 @@
 
 @class _AQGzipStreamInternal;
 
+// these values match those from <zlib.h>
+enum
+{
+    AQGzipCompressionLevelDefault   = -1,
+    
+    AQGzipCompressionLevelNone      =  0,
+    
+    AQGzipCompressionLevelFastest   =  1,
+    // ... levels 2-8 are implied
+    AQGzipCompressionLevelBest      =  9
+};
+typedef NSInteger AQGzipCompressionLevel;
+
+////////////////////////////////////////////////////////////////////////
+
+@protocol AQGzipOutputCompressor <NSObject>
+// can only be set prior to opening the stream
+@property (nonatomic) AQGzipCompressionLevel compressionLevel;
+@end
+
+////////////////////////////////////////////////////////////////////////
+
 // would be nice if these two could have a common ancestor, but sadly they each
 //  need to be subclasses of different parents
 // My way around this is for each thing to *contain* a common instance, which stores
@@ -57,15 +79,34 @@
 
 @end
 
-@interface AQGzipOutputStream : NSOutputStream
+@interface AQGzipOutputStream : NSOutputStream <AQGzipOutputCompressor>
 {
     NSOutputStream *        _outputStream;
     _AQGzipStreamInternal * _internal;
+    AQGzipCompressionLevel  _level;
 }
 
 // designated initializer
 - (id) initWithDestinationStream: (NSOutputStream *) stream;
 
+@end
+
+////////////////////////////////////////////////////////////////////////
+// Gzip FileIO-based streams
+
+// these categories return private subclasses (yay for class-clusters)
+//  which use the high-level gzFile APIs to deal with files. This means
+//  that the output stream in particular produces an actual gzip *file*,
+//  with a header, not just a blob of compressed data.
+
+@interface AQGzipInputStream (GzipFileInput)
++ (id) gzipStreamWithFileAtPath: (NSString *) path;
+- (id) initWithGzipFileAtPath: (NSString *) path;
+@end
+
+@interface AQGzipOutputStream (GzipFileOutput)
++ (id<AQGzipOutputCompressor>) gzipStreamToFileAtPath: (NSString *) path;
+- (id<AQGzipOutputCompressor>) initToGzipFileAtPath: (NSString *) path;
 @end
 
 ////////////////////////////////////////////////////////////////////////

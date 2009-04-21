@@ -349,11 +349,26 @@ static void * __AQGzipPerform( void * msg, CFIndex size, CFAllocatorRef allocato
     
     NSInteger amountToCopy = MIN(self.inputRoom, length);
     memcpy( self.inputPtr, buffer, amountToCopy );
+    _zStream->avail_in += amountToCopy;
     _writeOffset += amountToCopy;
     
     ATOMIC_UNLOCK;
     
     return ( amountToCopy );
+}
+
+- (NSInteger) writeInputFromStream: (NSInputStream *) stream
+{
+    ATOMIC_LOCK;
+    
+    NSInteger amountRead = [stream read: (uint8_t *)self.inputPtr
+                              maxLength: self.inputRoom];
+    _zStream->avail_in += amountRead;
+    _writeOffset += amountRead;
+    
+    ATOMIC_UNLOCK;
+    
+    return ( amountRead );
 }
 
 - (NSInteger) readOutputToBuffer: (void *) buffer length: (NSInteger) length
@@ -376,6 +391,28 @@ static void * __AQGzipPerform( void * msg, CFIndex size, CFAllocatorRef allocato
     ATOMIC_UNLOCK;
     
     return ( amountToCopy );
+}
+
+- (NSInteger) readOutputToStream: (NSOutputStream *) stream
+{
+    ATOMIC_LOCK;
+    
+    NSInteger amountWritten = [stream write: (const uint8_t *)self.outputPtr
+                                  maxLength: self.outputAvailable];
+    _readOffset += amountWritten;
+    
+    if ( _readOffset == _zStream->total_out )
+    {
+        // reset output buffer
+        _zStream->next_out = _output;
+        _zStream->avail_out = 1024;
+        _zStream->total_out = 0;
+        _readOffset = 0;
+    }
+    
+    ATOMIC_UNLOCK;
+    
+    return ( amountWritten );
 }
 
 @end
