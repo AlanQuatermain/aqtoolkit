@@ -43,6 +43,65 @@
 #import <mach/mach_port.h>
 #import <mach/mach_init.h>
 
+@interface AQGzipFileInputStream : NSInputStream
+{
+    NSString *          _path;
+    gzFile              _file;
+    CFRunLoopSourceRef  _rls;
+    mach_port_t         _port;
+    id __weak           _delegate;
+    NSError *           _error;
+    NSStreamStatus      _status;
+}
+@end
+
+@interface AQGzipFileOutputStream : NSOutputStream <AQGzipOutputCompressor>
+{
+    NSString *              _path;
+    gzFile                  _file;
+    CFRunLoopSourceRef      _rls;
+    mach_port_t             _port;
+    id __weak               _delegate;
+    NSError *               _error;
+    NSStreamStatus          _status;
+    AQGzipCompressionLevel  _level;
+}
+@end
+
+@implementation AQGzipInputStream (GzipFileInput)
+
++ (id) gzipStreamWithFileAtPath: (NSString *) path
+{
+    return ( [[[AQGzipFileInputStream alloc] initWithPath: path] autorelease] );
+}
+
+- (id) initWithGzipFileAtPath: (NSString *) path
+{
+    id result = [[AQGzipFileInputStream alloc] initWithPath: path];
+    [self release];
+    return ( result );
+}
+
+@end
+
+@implementation AQGzipOutputStream (GzipFileOutput)
+
++ (id<AQGzipOutputCompressor>) gzipStreamToFileAtPath: (NSString *) path
+{
+    return ( [[[AQGzipFileOutputStream alloc] initWithPath: path] autorelease] );
+}
+
+- (id<AQGzipOutputCompressor>) initToGzipFileAtPath: (NSString *) path
+{
+    id result = [[AQGzipFileOutputStream alloc] initWithPath: path];
+    [self release];
+    return ( result );
+}
+
+@end
+
+#pragma mark -
+
 NSError * CreateGZFileError( gzFile file )
 {
     int err = 0;
@@ -96,7 +155,7 @@ static CFRunLoopSourceRef RunloopSourceForStream( NSStream * stream, mach_port_t
     // allocate with receive right
     kern_return_t kr = mach_port_allocate( mach_task_self(), MACH_PORT_RIGHT_RECEIVE, port );
     if ( kr != KERN_SUCCESS )
-        return;
+        return ( NULL );
     
     // insert a make-send right so others can post to us
     kr = mach_port_insert_right( mach_task_self(), *port, *port, MACH_MSG_TYPE_MAKE_SEND );
@@ -122,18 +181,6 @@ static CFRunLoopSourceRef RunloopSourceForStream( NSStream * stream, mach_port_t
 }
 
 #pragma mark -
-
-@interface AQGzipFileInputStream : NSInputStream
-{
-    NSString *          _path;
-    gzFile              _file;
-    CFRunLoopSourceRef  _rls;
-    mach_port_t         _port;
-    id __weak           _delegate;
-    NSError *           _error;
-    NSStreamStatus      _status;
-}
-@end
 
 @implementation AQGzipFileInputStream
 
@@ -202,7 +249,7 @@ static CFRunLoopSourceRef RunloopSourceForStream( NSStream * stream, mach_port_t
 - (void) scheduleInRunLoop: (NSRunLoop *) aRunLoop forMode: (NSString *) mode
 {
     if ( _rls == NULL )
-        _rls = (CFRunLoopRef) CFMakeCollectable( RunloopSourceForStream(self, &_port) );
+        _rls = (CFRunLoopSourceRef) CFMakeCollectable( RunloopSourceForStream(self, &_port) );
     CFRunLoopAddSource( [aRunLoop getCFRunLoop], _rls, (CFStringRef)mode );
 }
 
@@ -267,7 +314,7 @@ static CFRunLoopSourceRef RunloopSourceForStream( NSStream * stream, mach_port_t
     _status = NSStreamStatusClosed;
 }
 
-- (void) _runloopPort
+- (mach_port_t) _runloopPort
 {
     return ( _port );
 }
@@ -316,20 +363,9 @@ static CFRunLoopSourceRef RunloopSourceForStream( NSStream * stream, mach_port_t
 
 #pragma mark -
 
-@interface AQGzipFileOutputStream : NSOutputStream <AQGzipOutputCompressor>
-{
-    NSString *              _path;
-    gzFile                  _file;
-    CFRunLoopSourceRef      _rls;
-    mach_port_t             _port;
-    id __weak               _delegate;
-    NSError *               _error;
-    NSStreamStatus          _status;
-    AQGzipCompressionLevel  _level;
-}
-@end
-
 @implementation AQGzipFileOutputStream
+
+@synthesize compressionLevel=_level;
 
 - (id) initWithPath: (NSString *) path
 {
@@ -397,7 +433,7 @@ static CFRunLoopSourceRef RunloopSourceForStream( NSStream * stream, mach_port_t
 - (void) scheduleInRunLoop: (NSRunLoop *) aRunLoop forMode: (NSString *) mode
 {
     if ( _rls == NULL )
-        _rls = (CFRunLoopRef) CFMakeCollectable( RunloopSourceForStream(self, &_port) );
+        _rls = (CFRunLoopSourceRef) CFMakeCollectable( RunloopSourceForStream(self, &_port) );
     CFRunLoopAddSource( [aRunLoop getCFRunLoop], _rls, (CFStringRef)mode );
 }
 
@@ -466,7 +502,7 @@ static CFRunLoopSourceRef RunloopSourceForStream( NSStream * stream, mach_port_t
     _status = NSStreamStatusClosed;
 }
 
-- (void) _runloopPort
+- (mach_port_t) _runloopPort
 {
     return ( _port );
 }
