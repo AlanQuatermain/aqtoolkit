@@ -50,6 +50,7 @@
 #import "AQXMLParserDelegate.h"
 
 static void usage( void ) __dead2;
+static const char * MemorySizeString( mach_vm_size_t size );
 
 static const char *     _shortCommandLineArgs = "f:u:ndmah";
 static struct option    _longCommandLineArgs[] = {
@@ -98,6 +99,67 @@ static void usage( void )
                      "one test-run argument is provided, runs the last one specified.\n" );
     fflush( stderr );
     exit( EX_USAGE );
+}
+
+static const char * MemorySizeString( mach_vm_size_t size )
+{
+    enum
+    {
+        kSizeIsBytes        = 0,
+        kSizeIsKilobytes,
+        kSizeIsMegabytes,
+        kSizeIsGigabytes,
+        kSizeIsTerabytes,
+        kSizeIsPetabytes,
+        kSizeIsExabytes
+    };
+    
+    int sizeType = kSizeIsBytes;
+    double dSize = (double) size;
+    
+    while ( isgreater(dSize, 1024.0) )
+    {
+        dSize = dSize / 1024.0;
+        sizeType++;
+    }
+    
+    NSMutableString * str = [[NSMutableString alloc] initWithFormat: (sizeType == kSizeIsBytes ? @"%.00f" : @"%.02f"), dSize];
+    switch ( sizeType )
+    {
+        default:
+        case kSizeIsBytes:
+            [str appendString: @" bytes"];
+            break;
+            
+        case kSizeIsKilobytes:
+            [str appendString: @"KB"];
+            break;
+            
+        case kSizeIsMegabytes:
+            [str appendString: @"MB"];
+            break;
+            
+        case kSizeIsGigabytes:
+            [str appendString: @"GB"];
+            break;
+            
+        case kSizeIsTerabytes:
+            [str appendString: @"TB"];
+            break;
+            
+        case kSizeIsPetabytes:
+            [str appendString: @"PB"];
+            break;
+            
+        case kSizeIsExabytes:
+            [str appendString: @"EB"];
+            break;
+    }
+    
+    NSString * result = [str copy];
+    [str release];
+    
+    return ( [[result autorelease] UTF8String] );
 }
 
 #pragma mark -
@@ -160,7 +222,7 @@ static void RunNSDocumentTest( NSURL * url )
     mach_vm_size_t end = GetProcessMemoryUsage();
     [doc release];
     
-    fprintf( stdout, "Peak VM usage: %llu bytes\n", (end - start) );
+    fprintf( stdout, "Peak VM usage: %s\n", MemorySizeString(end - start) );
 }
 
 static void RunNSParserTest( NSURL * url )
@@ -176,7 +238,7 @@ static void RunNSParserTest( NSURL * url )
     (void) [parser parse];
     
     fprintf( stdout, "Parsed %lu numbers\n", (unsigned long)[delegate.set count] );
-    fprintf( stdout, "Peak VM usage: %llu bytes\n", delegate.maxVMSize );
+    fprintf( stdout, "Peak VM usage: %s\n", MemorySizeString(delegate.maxVMSize) );
     
     [delegate release];
     [parser release];
@@ -210,7 +272,7 @@ static void RunMappedNSParserTest( NSURL * url )
     (void) [parser parse];
     
     fprintf( stdout, "Parsed %lu numbers\n", (unsigned long)[delegate.set count] );
-    fprintf( stdout, "Peak VM usage: %llu bytes\n", delegate.maxVMSize );
+    fprintf( stdout, "Peak VM usage: %s\n", MemorySizeString(delegate.maxVMSize) );
     
     [delegate release];
     [parser release];
@@ -245,7 +307,7 @@ static void RunAQParserTest( NSURL * url )
     (void) [parser parse];
     
     fprintf( stdout, "Parsed %lu numbers\n", (unsigned long)[delegate.set count] );
-    fprintf( stdout, "Peak VM usage: %llu bytes\n", delegate.maxVMSize );
+    fprintf( stdout, "Peak VM usage: %s\n", MemorySizeString(delegate.maxVMSize) );
     
     [parser release];
     [delegate release];
