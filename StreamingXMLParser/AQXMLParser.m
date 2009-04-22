@@ -639,6 +639,7 @@ static void __startElementNS( void * ctx, const xmlChar *localname, const xmlCha
 		
 		[attrDict setObject: attrValue forKey: attrQualified];
 		
+        [attrLocalName release];
 		[attrQualified release];
 		[attrValue release];
 	}
