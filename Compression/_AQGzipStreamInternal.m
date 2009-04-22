@@ -190,6 +190,8 @@ static void * __AQGzipPerform( void * msg, CFIndex size, CFAllocatorRef allocato
 #else
     NSReallocateCollectable( _input, inputSize, 0 );
 #endif
+    
+    _zStream->next_in = _input;
 }
 
 - (void) setOutputSize: (NSInteger) outputSize
@@ -201,6 +203,7 @@ static void * __AQGzipPerform( void * msg, CFIndex size, CFAllocatorRef allocato
     NSReallocateCollectable( _output, outputSize, 0 );
 #endif
     
+    _zStream->next_out = _output;
     _zStream->avail_out = outputSize;
 }
 
