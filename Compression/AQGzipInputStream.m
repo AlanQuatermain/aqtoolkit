@@ -69,6 +69,32 @@
     return ( _internal.status );
 }
 
+- (NSInteger) inputBufferSize
+{
+    return ( _internal.inputSize );
+}
+
+- (void) setInputBufferSize: (NSInteger) value
+{
+    if ( _internal.status != NSStreamStatusNotOpen )
+        return;
+    
+    _internal.inputSize = value;
+}
+
+- (NSInteger) outputBufferSize
+{
+    return ( _internal.outputSize );
+}
+
+- (void) setOutputBufferSize: (NSInteger) value
+{
+    if ( _internal.status != NSStreamStatusNotOpen )
+        return;
+    
+    _internal.outputSize = value;
+}
+
 - (void) open
 {
     if ( _internal.status != NSStreamStatusNotOpen )

@@ -53,6 +53,8 @@
     NSError *                   _error;
     NSStreamStatus              _status;
     id __weak                   _delegate;
+    NSInteger                   _inputSize;
+    NSInteger                   _outputSize;
     Bytef *                     _input;
     Bytef *                     _output;
     NSUInteger                  _writeOffset;
@@ -70,6 +72,8 @@
 @property (NS_NONATOMIC_IPHONEONLY retain) NSError * error;
 @property (NS_NONATOMIC_IPHONEONLY readwrite) NSStreamStatus status;
 @property (NS_NONATOMIC_IPHONEONLY assign) id __weak delegate;
+@property (nonatomic) NSInteger inputSize;
+@property (nonatomic) NSInteger outputSize;
 @property (nonatomic, readonly) Bytef * input;
 @property (nonatomic, readonly) Bytef * output;
 @property (NS_NONATOMIC_IPHONEONLY assign) NSUInteger writeOffset;

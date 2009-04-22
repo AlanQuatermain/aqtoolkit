@@ -61,6 +61,8 @@
 # define ATOMIC_ZSTREAM_SET(val, nval) _zStream->val = nval
 #endif
 
+#define DEFAULT_BUFFER_SIZE (1024)
+
 NSString * const AQZlibErrorDomain = @"AQZlibErrorDomain";
 
 NSError * CreateZlibError( z_stream *pZ, int err )
@@ -116,6 +118,8 @@ static void * __AQGzipPerform( void * msg, CFIndex size, CFAllocatorRef allocato
 @synthesize error=_error;
 @synthesize status=_status;
 @synthesize delegate=_delegate;
+@synthesize inputSize=_inputSize;
+@synthesize outputSize=_outputSize;
 @synthesize input=_input;
 @synthesize output=_output;
 @synthesize writeOffset=_writeOffset;
@@ -128,21 +132,23 @@ static void * __AQGzipPerform( void * msg, CFIndex size, CFAllocatorRef allocato
     if ( [super init] == nil )
         return ( nil );
     
+    _inputSize = _outputSize = DEFAULT_BUFFER_SIZE;
+    
 #if TARGET_OS_IPHONE
     _zStream = NSZoneMalloc( [self zone], sizeof(z_stream) );
-    _input   = NSZoneMalloc( [self zone], 1024 );
-    _output  = NSZoneMalloc( [self zone], 1024 );
+    _input   = NSZoneMalloc( [self zone], _inputSize );
+    _output  = NSZoneMalloc( [self zone], _outputSize );
 #else
     _zStream = NSAllocateCollectable( sizeof(z_stream), 0 );
-    _input   = NSAllocateCollectable( 1024, 0 );
-    _output  = NSAllocateCollectable( 1024, 0 );
+    _input   = NSAllocateCollectable( _inputSize, 0 );
+    _output  = NSAllocateCollectable( _outputSize, 0 );
 #endif
     
     _zStream->next_in = _input;
     _zStream->avail_in = 0;
     _zStream->total_in = 0;
     _zStream->next_out = _output;
-    _zStream->avail_out = 1024;
+    _zStream->avail_out = _outputSize;
     _zStream->total_out = 0;
     _zStream->zalloc = NULL;
     _zStream->zfree = NULL;
@@ -174,6 +180,28 @@ static void * __AQGzipPerform( void * msg, CFIndex size, CFAllocatorRef allocato
     if ( _port != MACH_PORT_NULL )
         (void) mach_port_deallocate( mach_task_self(), _port );
     [super finalize];
+}
+
+- (void) setInputSize: (NSInteger) inputSize
+{
+    _inputSize = inputSize;
+#if TARGET_OS_IPHONE
+    NSZoneRealloc( [self zone], _input, inputSize );
+#else
+    NSReallocateCollectable( _input, inputSize, 0 );
+#endif
+}
+
+- (void) setOutputSize: (NSInteger) outputSize
+{
+    _outputSize = outputSize;
+#if TARGET_OS_IPHONE
+    NSZoneRealloc( [self zone], _output, outputSize );
+#else
+    NSReallocateCollectable( _output, outputSize, 0 );
+#endif
+    
+    _zStream->avail_out = outputSize;
 }
 
 - (void) createRunloopSourceForStream: (id) stream
@@ -325,7 +353,7 @@ static void * __AQGzipPerform( void * msg, CFIndex size, CFAllocatorRef allocato
 
 - (NSInteger) inputRoom
 {
-    return ( 1024 - _writeOffset );
+    return ( _inputSize - _writeOffset );
 }
 
 - (void *) inputPtr
@@ -383,7 +411,7 @@ static void * __AQGzipPerform( void * msg, CFIndex size, CFAllocatorRef allocato
     {
         // reset output buffer
         _zStream->next_out = _output;
-        _zStream->avail_out = 1024;
+        _zStream->avail_out = _outputSize;
         _zStream->total_out = 0;
         _readOffset = 0;
     }
@@ -405,7 +433,7 @@ static void * __AQGzipPerform( void * msg, CFIndex size, CFAllocatorRef allocato
     {
         // reset output buffer
         _zStream->next_out = _output;
-        _zStream->avail_out = 1024;
+        _zStream->avail_out = _outputSize;
         _zStream->total_out = 0;
         _readOffset = 0;
     }

@@ -55,8 +55,14 @@ typedef NSInteger AQGzipCompressionLevel;
 
 ////////////////////////////////////////////////////////////////////////
 
+// all these properties can only be set prior to opening the stream
+
+@protocol AQGzipMemoryStreamOptimisation <NSObject>
+@property (nonatomic) NSInteger inputBufferSize;
+@property (nonatomic) NSInteger outputBufferSize;
+@end
+
 @protocol AQGzipOutputCompressor <NSObject>
-// can only be set prior to opening the stream
 @property (nonatomic) AQGzipCompressionLevel compressionLevel;
 @end
 
@@ -66,7 +72,7 @@ typedef NSInteger AQGzipCompressionLevel;
 //  need to be subclasses of different parents
 // My way around this is for each thing to *contain* a common instance, which stores
 //  all the common state information, etc.
-@interface AQGzipInputStream : NSInputStream
+@interface AQGzipInputStream : NSInputStream <AQGzipMemoryStreamOptimisation>
 {
     NSInputStream *         _compressedDataStream;
     _AQGzipStreamInternal * _internal;
@@ -79,7 +85,7 @@ typedef NSInteger AQGzipCompressionLevel;
 
 @end
 
-@interface AQGzipOutputStream : NSOutputStream <AQGzipOutputCompressor>
+@interface AQGzipOutputStream : NSOutputStream <AQGzipMemoryStreamOptimisation, AQGzipOutputCompressor>
 {
     NSOutputStream *        _outputStream;
     _AQGzipStreamInternal * _internal;
