@@ -110,7 +110,13 @@
 - (id) copyWithZone: (NSZone *) zone
 {
 	CFHTTPMessageRef newMessage = CFHTTPMessageCreateCopy( kCFAllocatorDefault, _internal );
-	return ( [[HTTPMessage allocWithZone: zone] initWithCFHTTPMessageRef: newMessage] );
+    if ( newMessage == NULL )
+        return ( nil );
+	
+    HTTPMessage * result = [[HTTPMessage allocWithZone: zone] initWithCFHTTPMessageRef: newMessage];
+    CFRelease( newMessage );
+    
+    return ( result );
 }
 
 - (id) mutableCopyWithZone: (NSZone *) zone
