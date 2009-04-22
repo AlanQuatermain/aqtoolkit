@@ -186,9 +186,9 @@ static void * __AQGzipPerform( void * msg, CFIndex size, CFAllocatorRef allocato
 {
     _inputSize = inputSize;
 #if TARGET_OS_IPHONE
-    NSZoneRealloc( [self zone], _input, inputSize );
+    _input = NSZoneRealloc( [self zone], _input, inputSize );
 #else
-    NSReallocateCollectable( _input, inputSize, 0 );
+    _input = NSReallocateCollectable( _input, inputSize, 0 );
 #endif
     
     _zStream->next_in = _input;
@@ -198,9 +198,9 @@ static void * __AQGzipPerform( void * msg, CFIndex size, CFAllocatorRef allocato
 {
     _outputSize = outputSize;
 #if TARGET_OS_IPHONE
-    NSZoneRealloc( [self zone], _output, outputSize );
+    _output = NSZoneRealloc( [self zone], _output, outputSize );
 #else
-    NSReallocateCollectable( _output, outputSize, 0 );
+    _output = NSReallocateCollectable( _output, outputSize, 0 );
 #endif
     
     _zStream->next_out = _output;
