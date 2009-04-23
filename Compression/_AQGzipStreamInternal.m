@@ -225,8 +225,8 @@ static void * __AQGzipPerform( void * msg, CFIndex size, CFAllocatorRef allocato
     CFRunLoopSourceContext1 ctx = {
         1,                      // version
         stream,                 // info
-        CFRetain,               // retain
-        CFRelease,              // release
+        NULL,                   // retain
+        NULL,                   // release
         CFCopyDescription,      // copyDescription
         CFEqual,                // equal
         CFHash,                 // hash
