@@ -6,6 +6,11 @@ This toolkit is comprised of various bits of utility code I've written for odd p
 
 If you have feature requests, or wish to file bugs, you can do so via "Lighthouse":http://quatermain.lighthouseapp.com/projects/28259-aqtoolkit
 
+h2. Projects Using AQToolkit
+
+"Outpost":http://www.outpostapp.com/ ["iTunes link":http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=298790896&mt=8] --- HTTPMessage, StreamingXMLParser, Compression, Extensions, LowMemoryDownload, TempFiles
+"Atomium: Periodic Table":http://www.lucilinburhuc.lu/iPhone/Atomium/index.html ["iTunes link":http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=314347624&mt=8] --- CommonCrypto
+
 h2. Contents
 
 h3. ASLogger
