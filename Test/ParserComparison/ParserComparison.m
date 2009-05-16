@@ -216,13 +216,15 @@ static void RunNSDocumentTest( NSURL * url )
     fprintf( stdout, "Testing NSXMLDocument...\n" );
     
     mach_vm_size_t start = GetProcessMemoryUsage();
+    CFAbsoluteTime time = CFAbsoluteTimeGetCurrent();
     NSXMLDocument * doc = [[NSXMLDocument alloc] initWithContentsOfURL: url
                                                                options: NSXMLDocumentTidyXML
                                                                  error: NULL];
+    time = CFAbsoluteTimeGetCurrent() - time;
     mach_vm_size_t end = GetProcessMemoryUsage();
     [doc release];
     
-    fprintf( stdout, "Peak VM usage: %s\n", MemorySizeString(end - start) );
+    fprintf( stdout, "  %.02f seconds, peak VM usage: %s\n", time, MemorySizeString(end - start) );
 }
 
 static void RunNSParserTest( NSURL * url )
@@ -233,12 +235,14 @@ static void RunNSParserTest( NSURL * url )
     
     fprintf( stdout, "Testing NSXMLParser from URL...\n" );
     
+    CFAbsoluteTime time = CFAbsoluteTimeGetCurrent();
     delegate.startVMSize = GetProcessMemoryUsage();
     
     (void) [parser parse];
     
-    fprintf( stdout, "Parsed %lu numbers\n", (unsigned long)[delegate.set count] );
-    fprintf( stdout, "Peak VM usage: %s\n", MemorySizeString(delegate.maxVMSize) );
+    time = CFAbsoluteTimeGetCurrent() - time;
+    fprintf( stdout, "  Parsed %lu numbers\n", (unsigned long)[delegate.set count] );
+    fprintf( stdout, "  %.02f seconds, peak VM usage: %s\n", time, MemorySizeString(delegate.maxVMSize) );
     
     [delegate release];
     [parser release];
@@ -267,12 +271,14 @@ static void RunMappedNSParserTest( NSURL * url )
     
     fprintf( stdout, "Testing NSXMLParser with mapped data...\n" );
     
+    CFAbsoluteTime time = CFAbsoluteTimeGetCurrent();
     delegate.startVMSize = GetProcessMemoryUsage();
     
     (void) [parser parse];
     
-    fprintf( stdout, "Parsed %lu numbers\n", (unsigned long)[delegate.set count] );
-    fprintf( stdout, "Peak VM usage: %s\n", MemorySizeString(delegate.maxVMSize) );
+    time = CFAbsoluteTimeGetCurrent() - time;
+    fprintf( stdout, "  Parsed %lu numbers\n", (unsigned long)[delegate.set count] );
+    fprintf( stdout, "  %.02f seconds, peak VM usage: %s\n", time, MemorySizeString(delegate.maxVMSize) );
     
     [delegate release];
     [parser release];
@@ -302,12 +308,14 @@ static void RunAQParserTest( NSURL * url )
     
     fprintf( stdout, "Testing AQXMLParser...\n" );
     
+    CFAbsoluteTime time = CFAbsoluteTimeGetCurrent();
     delegate.startVMSize = GetProcessMemoryUsage();
     
     (void) [parser parse];
     
-    fprintf( stdout, "Parsed %lu numbers\n", (unsigned long)[delegate.set count] );
-    fprintf( stdout, "Peak VM usage: %s\n", MemorySizeString(delegate.maxVMSize) );
+    time = CFAbsoluteTimeGetCurrent() - time;
+    fprintf( stdout, "  Parsed %lu numbers\n", (unsigned long)[delegate.set count] );
+    fprintf( stdout, "  %.02f seconds, peak VM usage: %s\n", time, MemorySizeString(delegate.maxVMSize) );
     
     [parser release];
     [delegate release];

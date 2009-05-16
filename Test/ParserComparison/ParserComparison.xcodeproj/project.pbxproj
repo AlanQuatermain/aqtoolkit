@@ -34,6 +34,7 @@
 		08FB7796FE84155DC02AAC07 /* ParserComparison.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ParserComparison.m; sourceTree = "<group>"; };
 		08FB779EFE84155DC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32A70AAB03705E1F00C91783 /* ParserComparison_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParserComparison_Prefix.pch; sourceTree = "<group>"; };
+		3824D5860FBF3A5F00F8E12D /* iPhoneNonatomic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iPhoneNonatomic.h; path = ../../iPhoneNonatomic.h; sourceTree = SOURCE_ROOT; };
 		388BDEFC0F8AAD12004A22FD /* AQXMLParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AQXMLParser.h; sourceTree = "<group>"; };
 		388BDEFD0F8AAD12004A22FD /* AQXMLParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AQXMLParser.m; sourceTree = "<group>"; };
 		388BDEFF0F8AAD5F004A22FD /* MemoryUsageLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MemoryUsageLogger.h; sourceTree = "<group>"; };
@@ -74,6 +75,7 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				3824D5860FBF3A5F00F8E12D /* iPhoneNonatomic.h */,
 				388BDEFB0F8AAD12004A22FD /* StreamingXMLParser */,
 				32A70AAB03705E1F00C91783 /* ParserComparison_Prefix.pch */,
 				08FB7796FE84155DC02AAC07 /* ParserComparison.m */,
