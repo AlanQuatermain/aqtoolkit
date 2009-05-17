@@ -82,7 +82,7 @@ extern NSString * const AQXMLParserParsingRunLoopMode;
                                 selector: (SEL) completionSelector
                                  context: (void *) contextPtr;
 
-@property NS_NONATOMIC_IPHONEONLY(readonly) NSError * parserError;
+@property (NS_NONATOMIC_IPHONEONLY readonly) NSError * parserError;
 
 @end
 
