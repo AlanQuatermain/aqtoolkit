@@ -978,6 +978,9 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 			
 		case NSStreamEventHasBytesAvailable:
 		{
+            if ( _internal->delegateAborted )
+                break;
+            
 			uint8_t buf[1024];
 			int len = [input read: buf maxLength: 1024];
 			if ( len > 0 )
@@ -995,6 +998,7 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 	
 	_internal->delegateAborted = YES;
 	xmlStopParser( _internal->parserContext );
+    [self _setStreamComplete: NO];  // must tell any async delegates that we're done parsing
 }
 
 - (NSError *) parserError
