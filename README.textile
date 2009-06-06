@@ -102,3 +102,7 @@ The NSFileManager and NSFileHandle temp-file routines have three forms:
 # Create a randomly-named file within NSTemporaryDirectory(), under a new folder whose name you specify (i.e. NSTemporaryDirectory()/folder_name/temp_file).
 
 All three categories are compatible with garbage collection or manual memory management.
+
+h3. Contacts
+
+In here are some fairly simple ObjC wrapper classes for the iPhone's CF-only AddressBook framework. Mostly they provide 'syntactic sugar' over the C APIs and return autoreleased rather than retained variables. So far the only non-wrapper function I've implemented is a routine to return an NSIndexSet containing persistent ABRecordIDs for all members of an ABGroup. This will probably be followed by a few more similar routines as I begin to use this in real-world situations where contacts will be saved and manipulated more frequently and in particular ways.
