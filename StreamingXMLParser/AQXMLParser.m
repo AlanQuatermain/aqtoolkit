@@ -761,8 +761,8 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 - (id) initWithData: (NSData *) data
 {
     NSInputStream * stream = [[NSInputStream alloc] initWithData: data];
-    _internal->expectedDataLength = (float) [data length];
     id result = [self initWithStream: stream];
+    _internal->expectedDataLength = (float) [data length];
     [stream release];
     return ( result );
 }
