@@ -531,7 +531,9 @@ static xmlEntityPtr __getEntity( void * ctx, const xmlChar * name )
 	NSString * nameStr = NSStringFromXmlChar(name);
 	
 	NSData * data = [delegate parser: parser resolveExternalEntityName: nameStr systemID: nil];
-	if ( data == nil )
+    [nameStr release];
+	
+    if ( data == nil )
 		return ( NULL );
 	
 	if ( p->myDoc == NULL )
