@@ -209,7 +209,9 @@ static const char * levelStrings[] =
 	if ( value == NULL )
 		return ( (pid_t) 0 );
 	
-	return ( (uid_t) sscanf(value, "%d") );
+    uid_t result = 0;
+	sscanf( value, "%d", &result );
+    return ( result );
 }
 
 - (uid_t) userID
@@ -218,7 +220,9 @@ static const char * levelStrings[] =
 	if ( value == NULL )
 		return ( (uid_t) -1 );
 	
-	return ( (uid_t) sscanf(value, "%d") );
+    uid_t result = 0;
+    sscanf( value, "%d", &result );
+    return ( result );
 }
 
 - (gid_t) groupID
@@ -227,7 +231,9 @@ static const char * levelStrings[] =
 	if ( value == NULL )
 		return ( (gid_t) -1 );
 	
-	return ( (gid_t) sscanf(value, "%d") );
+    gid_t result = 0;
+	sscanf( value, "%d", &result );
+    return ( result );
 }
 
 - (int) level
@@ -272,7 +278,9 @@ static const char * levelStrings[] =
 	if ( value == NULL )
 		return ( (uid_t) -1 );
 	
-	return ( (uid_t) sscanf(value, "%d") );
+    uid_t result = 0;
+	sscanf( value, "%d", &result );
+    return ( result );
 }
 
 - (void) setReadUID: (uid_t) readUID
@@ -288,7 +296,9 @@ static const char * levelStrings[] =
 	if ( value == NULL )
 		return ( (gid_t) -1 );
 	
-	return ( (gid_t) sscanf(value, "%d") );
+    gid_t result = 0;
+	sscanf( value, "%d", &result );
+    return ( result );
 }
 
 - (void) setReadGID: (gid_t) readGID

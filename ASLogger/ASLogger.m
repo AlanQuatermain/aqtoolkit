@@ -110,7 +110,7 @@ static ASLogger * __defaultLogger = nil;
 	NSString * msg = [[NSString alloc] initWithFormat: format arguments: args];
 	va_end(args);
 	
-	BOOL result = (asl_log(_client, NULL, level, [msg UTF8String]) == 0);
+	BOOL result = (asl_log(_client, NULL, level, [msg UTF8String], NULL) == 0);
 	[msg release];
 	
 	return ( result );
@@ -119,7 +119,7 @@ static ASLogger * __defaultLogger = nil;
 - (BOOL) log: (NSString *) format level: (int) level args: (va_list) args
 {
 	NSString * msg = [[NSString alloc] initWithFormat: format arguments: args];
-	BOOL result = (asl_log(_client, NULL, level, [msg UTF8String]) == 0);
+	BOOL result = (asl_log(_client, NULL, level, [msg UTF8String], NULL) == 0);
 	[msg release];
 	return ( result );
 }
@@ -131,7 +131,7 @@ static ASLogger * __defaultLogger = nil;
 	NSString * msg = [[NSString alloc] initWithFormat: format arguments: args];
 	va_end(args);
 	
-	BOOL result = (asl_log(_client, message.aslmessage, level, [msg UTF8String]) == 0);
+	BOOL result = (asl_log(_client, message.aslmessage, level, [msg UTF8String], NULL) == 0);
 	[msg release];
 	
 	return ( result );
@@ -140,7 +140,7 @@ static ASLogger * __defaultLogger = nil;
 - (BOOL) log: (NSString *) format message: (ASLMessage *) message level: (int) level args: (va_list) args
 {
 	NSString * msg = [[NSString alloc] initWithFormat: format arguments: args];
-	BOOL result = (asl_log(_client, message.aslmessage, level, [msg UTF8String]) == 0);
+	BOOL result = (asl_log(_client, message.aslmessage, level, [msg UTF8String], NULL) == 0);
 	[msg release];
 	return ( result );
 }
