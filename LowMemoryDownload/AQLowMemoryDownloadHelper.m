@@ -124,6 +124,7 @@ didReceiveAuthenticationChallenge: (NSURLAuthenticationChallenge *) challenge;
 	obj.asyncDelegate = delegate;
 	
 	[obj _performAsynchronousRequest: request];
+    [obj release];
 }
 
 - (id) init

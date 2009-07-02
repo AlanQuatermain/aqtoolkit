@@ -142,7 +142,10 @@
 		}
 	}
 	
-	return ( [NSError errorWithDomain: domain code: code userInfo: userInfo] );
+    NSError * result = [NSError errorWithDomain: domain code: code userInfo: userInfo];
+    [userInfo release];
+    
+	return ( result );
 }
 
 @end

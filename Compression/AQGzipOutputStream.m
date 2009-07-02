@@ -297,9 +297,11 @@
     return ( [_outputStream propertyForKey: key] );
 }
 
-- (void) setProperty: (id) property forKey: (NSString *) key
+- (BOOL) setProperty: (id) property forKey: (NSString *) key
 {
-    [_outputStream setProperty: property forKey: key];
+    if ( [_outputStream setProperty: property forKey: key] == NO )
+        return ( [super setProperty: property forKey: key] );
+    return ( YES );
 }
 
 @end

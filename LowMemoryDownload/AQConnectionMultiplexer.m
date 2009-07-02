@@ -132,11 +132,6 @@ static AQConnectionMultiplexer * __connectionMultiplexer = nil;
 	[self autorelease];
 }
 
-- (void) _terminate
-{
-	[self _cancelTransfers];
-}
-
 - (void) _addHelper: (AQLowMemoryDownloadHelper *) helper
 {
 	@synchronized(_downloadHelpers)
@@ -162,6 +157,11 @@ static AQConnectionMultiplexer * __connectionMultiplexer = nil;
 		[_downloadHelpers makeObjectsPerformSelector: @selector(cancel)];
 		[_downloadHelpers removeAllObjects];
 	}
+}
+
+- (void) _terminate
+{
+	[self _cancelTransfers];
 }
 
 - (void) main

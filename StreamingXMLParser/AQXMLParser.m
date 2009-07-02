@@ -919,10 +919,6 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
     if ( _stream == nil )
 		return ( NO );
 	
-	xmlSAXHandlerPtr saxHandler = NULL;
-	if ( self.delegate != nil )
-		saxHandler = _internal->saxHandler;
-	
 	// see if bytes are already available on the stream
 	// if there are, we'll grab the first 4 bytes and use those to compute the encoding
 	// otherwise, we'll just go with no initial data
@@ -1242,11 +1238,10 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
         return;
     }
     
-    CFNumberRef num = (CFNumberRef) [_stream propertyForKey: (NSString *)kCFStreamPropertyFTPResourceSize];
+    NSNumber * num = [_stream propertyForKey: (NSString *)kCFStreamPropertyFTPResourceSize];
     if ( num != NULL )
     {
-        _internal->expectedDataLength = [(NSNumber *)num floatValue];
-        CFRelease( num );
+        _internal->expectedDataLength = [num floatValue];
         return;
     }
     

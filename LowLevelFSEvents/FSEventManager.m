@@ -217,7 +217,7 @@ enum
 
 - (BOOL) setupFSEventListener
 {
-	int clonefd;
+	int clonefd = -1;
 	struct fsevent_clone_args clone_args;
 	int8_t event_list[] = {
 		FSE_REPORT,		// create file
@@ -342,6 +342,8 @@ enum
 			FSEvent * event = [[FSEvent alloc] init];
 			event.eventCode = pEvt->type & FSE_TYPE_MASK;
 			event.processID = pEvt->pid;
+            
+            BOOL isVnode = NO;
 			
 			// read arguments
 			kfs_event_arg_t *pArg = pEvt->args;
@@ -356,7 +358,6 @@ enum
 				
 				int argOffset = sizeof(pArg->type) + sizeof(pArg->len) + pArg->len;
 				offset += argOffset;
-				BOOL isVnode = NO;
 				
 				int argType = (pArg->type > FSE_MAX_ARGS) ? 0 : pArg->type;
 				switch ( argType )

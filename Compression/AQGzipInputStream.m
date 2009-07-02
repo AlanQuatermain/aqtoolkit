@@ -316,9 +316,11 @@
     return ( [_compressedDataStream propertyForKey: key] );
 }
 
-- (void) setProperty: (id) property forKey: (NSString *) key
+- (BOOL) setProperty: (id) property forKey: (NSString *) key
 {
-    [_compressedDataStream setProperty: property forKey: key];
+    if ( [_compressedDataStream setProperty: property forKey: key] == NO )
+        return ( [super setProperty: property forKey: key] );
+    return ( YES );
 }
 
 @end

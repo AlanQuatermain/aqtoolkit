@@ -512,7 +512,7 @@ static CFRunLoopSourceRef RunloopSourceForStream( NSStream * stream, mach_port_t
     [_delegate stream: self handleEvent: event];
 }
 
-- (NSInteger) write: (uint8_t *) buffer maxLength: (NSUInteger) len
+- (NSInteger) write: (uint8_t const *) buffer maxLength: (NSUInteger) len
 {
     if ( _status != NSStreamStatusOpen )
         return ( 0 );

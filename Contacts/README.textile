@@ -1,0 +1,9 @@
+h2. Contacts has moved!
+
+The AddressBook Objective-C wrappers for iPhone are now "in their own project":http://github.com/alanQuatermain/iPhoneContacts. The reason for this is twofold:
+
+1. The AQToolkit is based around hybrid code which can be used on both the Mac and iPhone. This wrapper API, by its very design, works only on the iPhone --- it uses the iPhone-only AddressBook framework, which has C APIs in the same header files used for the ObjC versions on the Mac. This makes it difficult to build AQToolkit as a complete library (my testing stuff is actually based around 10.5 and 10.6 builds, not iPhone).
+
+2. The classes in this API are useful enough on their own, and involve enough classes, that it seems a good idea to separate it out from everything else in this generic toolkit project.
+
+If you want the latest code (this move coincides with a minor update to the code itself) then you can "find it here":http://github.com/alanQuatermain/iPhoneContacts.
