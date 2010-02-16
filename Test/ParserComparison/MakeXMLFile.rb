@@ -1,26 +1,27 @@
 #!/usr/bin/ruby
 
-require "rexml/document"
-require "rexml/formatters/transitive"
-require "rdoc/usage"
-
 # == Usage
     #
     # Create an XML file containing a whole bunch of deeply-nested tags containing sequential integers.
     #
     # The idea is that the parser can pull out the integers into an NSIndexSet, so the parsed
-    #  data consumes the smallest amount of memory possible, so the memory usage will refer mostly
-    #  to the actual data allocated/used by the parser itself.
+    # data consumes the smallest amount of memory possible, so the memory usage will refer mostly
+    # to the actual data allocated/used by the parser itself.
     #
     # set_channel_names [OPTIONS]
     #
-    # -h, --help:
+    # -h, --help::
     #    Show this message
-    # -c, --count:
-    #    Number of consecutive values to embed (1 to X)
+    # -c, --count::
+    #    Number of consecutive values to embed (1 to X).
     #    Default is 20'000
-    # -f, --file:
+    # -f, --file::
     #    Name of output file (required)
+
+require "rexml/document"
+require "rexml/formatters/transitive"
+require "rdoc/usage"
+
 opts = GetoptLong.new(
   ['--help', '-h', GetoptLong::NO_ARGUMENT],
   ['--count', '-c', GetoptLong::REQUIRED_ARGUMENT],
