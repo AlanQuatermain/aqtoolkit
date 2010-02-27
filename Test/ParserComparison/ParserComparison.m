@@ -376,13 +376,13 @@ int main (int argc, char * const argv[])
     if ( urlStr != NULL )
     {
         NSString * str = [[NSString alloc] initWithUTF8String: urlStr];
-        url = [[NSURL alloc] initWithString: str];
+        url = [NSURL URLWithString: str];
         [str release];
     }
     else
     {
         NSString * str = [[NSString alloc] initWithUTF8String: fileStr];
-        url = [[NSURL alloc] initFileURLWithPath: str];
+        url = [NSURL fileURLWithPath: str];
         [str release];
     }
     
