@@ -88,14 +88,17 @@
  
 */
 
-// options to specify the type of data to return
 enum
 {
+	// options to specify the type of data to return
     kAQKeychainReturnNone           = 0,
     kAQKeychainReturnAttributes     = 1 << 0,
     kAQKeychainReturnData           = 1 << 1,
     kAQKeychainReturnRef            = 1 << 2,
     kAQKeychainReturnPersistentRef  = 1 << 3,
+	
+	// options to specify certain items to exclude from the match
+	kAQKeychainExcludeDescription	= 1 << 8,
     
     kAQKeychainReturnAll            = 0xFFFFFFFF
     
@@ -135,6 +138,7 @@ typedef NSUInteger AQKeychainOptions;
 @property (nonatomic)		  UInt16 port;
 @property (nonatomic, retain) NSString * path;
 @property (nonatomic, retain) NSData * generic;
+@property (nonatomic, retain) NSString * service;
 
 @property (nonatomic, copy) NSData * valueData;
 @property (nonatomic, readonly) CFTypeRef keychainItemRef;

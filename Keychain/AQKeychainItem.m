@@ -139,13 +139,16 @@
 #if TARGET_OS_IPHONE
 					 (id)kSecAttrAccessGroup,
 #endif
-					 (id)kSecAttrAccount, (id)kSecAttrSecurityDomain, (id)kSecAttrPort, (id)kSecAttrPath,
-					 (id)kSecAttrGeneric, (id)kSecAttrLabel, (id)kSecAttrDescription, (id)kSecAttrService, (id)kSecAttrApplicationTag, (id)kSecAttrKeyClass, nil];
+					 (id)kSecAttrSecurityDomain, (id)kSecAttrPort, (id)kSecAttrPath,
+					 (id)kSecAttrLabel, (id)kSecAttrDescription, (id)kSecAttrService, (id)kSecAttrApplicationTag, (id)kSecAttrKeyClass, nil];
 	}
 	
 	for ( id key in _keychainData )
 	{
 		if ( [__copySet containsObject: key] == NO )
+			continue;
+		
+		if ( (options & kAQKeychainExcludeDescription) && [key isEqual: (id)kSecAttrDescription] )
 			continue;
 		
 		[query setObject: [_keychainData objectForKey: key]
@@ -157,7 +160,7 @@
 
 - (BOOL) queryKeychain
 {
-    return ( [self queryKeychainWithOptions: kAQKeychainReturnAttributes|kAQKeychainReturnData] );
+    return ( [self queryKeychainWithOptions: kAQKeychainReturnAttributes|kAQKeychainReturnData|kAQKeychainExcludeDescription] );
 }
 
 - (BOOL) queryKeychainWithOptions: (AQKeychainOptions) options
@@ -190,7 +193,7 @@
 
 - (BOOL) storeKeychain
 {
-	NSDictionary * query = [self copyQueryDictionary: kAQKeychainReturnAttributes];
+	NSDictionary * query = [self copyQueryDictionary: kAQKeychainReturnAttributes|kAQKeychainExcludeDescription];
 	NSDictionary * output = nil;
 	OSStatus err = noErr;
 	
@@ -211,7 +214,7 @@
 		
 		//NSMutableDictionary * attrs = [update mutableCopy];
 		//[attrs removeObjectForKey: (id)kSecClass];
-        NSDictionary * attrs = [[NSDictionary alloc] initWithObjectsAndKeys: [_keychainData objectForKey: (id)kSecValueData], (id)kSecValueData, nil];
+        NSDictionary * attrs = [[NSDictionary alloc] initWithObjectsAndKeys: [_keychainData objectForKey: (id)kSecValueData], (id)kSecValueData, [_keychainData objectForKey: (id)kSecAttrAccount], (id)kSecAttrAccount, [_keychainData objectForKey: (id)kSecAttrGeneric], (id)kSecAttrGeneric, self.description, (id)kSecAttrDescription, nil];
 		
 		// save
 		err = SecItemUpdate( (CFDictionaryRef)update, (CFDictionaryRef) attrs );
@@ -442,6 +445,16 @@
 	[self setObject: data forKey: (id)kSecAttrGeneric];
 }
 
+- (NSString *) service
+{
+    return ( [_keychainData objectForKey: (id)kSecAttrService] );
+}
+
+- (void) setService: (NSString *) str
+{
+    [self setObject: str forKey: (id)kSecAttrService];
+}
+
 - (NSData *) valueData
 {
     return ( [_keychainData objectForKey: (id)kSecValueData] );
@@ -460,14 +473,13 @@
     
     NSMutableDictionary * query = [self copyQueryDictionary: kAQKeychainReturnRef];
     
-    OSStatus err = SecItemCopyMatching( (CFDictionaryRef)query, &result );
-    NSAssert( err == noErr, @"Failed to get a SecKeychainItemRef" );
+    (void) SecItemCopyMatching( (CFDictionaryRef)query, &result );
     
     [query release];
+	if ( result == NULL )
+		return ( NULL );
     
-    if ( result != nil )
-        [_keychainData setObject: (id)result forKey: (id)kSecValueRef];
-    
+	[_keychainData setObject: (id)result forKey: (id)kSecValueRef];
     return ( [[(id)result retain] autorelease] );
 }
 
