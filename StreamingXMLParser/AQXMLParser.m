@@ -1253,9 +1253,18 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
             
             [invoc setTarget: _internal->asyncDelegate];
             [invoc setSelector: _internal->asyncSelector];
-            [invoc setArgument: &self atIndex: 2];
-            [invoc setArgument: &parsedOK atIndex: 3];
-            [invoc setArgument: &_internal->asyncContext atIndex: 4];
+			
+			switch ( [sig numberOfArguments] )
+			{
+				default:		// yes, these are designed to fall through
+				case 5:
+					[invoc setArgument: &_internal->asyncContext atIndex: 4];
+				case 4:
+					[invoc setArgument: &parsedOK atIndex: 3];
+				case 3:
+					[invoc setArgument: &self atIndex: 2];
+					break;
+			}
             
             [invoc invoke];
         }
