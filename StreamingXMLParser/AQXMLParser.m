@@ -57,8 +57,6 @@
 # import <CoreServices/../Frameworks/CFNetwork.framework/Headers/CFNetwork.h>
 #endif
 
-#import "KBUserSettings.h"
-
 #define AUTO_DEBUG_LOG_INPUT 0
 
 NSString * const AQXMLParserParsingRunLoopMode = @"AQXMLParserParsingRunLoopMode";
@@ -711,10 +709,9 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 	
 	[self _initializeSAX2Callbacks];
 	
-#if AUTO_DEBUG_LOG_INPUT == 0
-	if ( [KBUserSettings logAllXML] )
+#if AUTO_DEBUG_LOG_INPUT == 1
+	self.debugLogInput = YES;
 #endif
-		self.debugLogInput = YES;
 	
 	return ( self );
 }
