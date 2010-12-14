@@ -62,6 +62,10 @@
 									   url: (NSURL *) url
 								   version: (NSString *) httpVersion
 {
+	// crash fix
+	if ( url == nil )
+		return nil;
+	
 	CFHTTPMessageRef message = CFHTTPMessageCreateRequest( kCFAllocatorDefault, (CFStringRef)method,
                                                            (CFURLRef)[url absoluteURL], (CFStringRef)httpVersion );
 	HTTPMessage * result = [[self alloc] initWithCFHTTPMessageRef: message];
@@ -80,6 +84,11 @@
     return ( [result autorelease] );
 }
 
++ (HTTPMessage *) responseMessageFromInputStream: (NSInputStream *) stream
+{
+	return ( [[[self alloc] initResponseFromInputStream: stream] autorelease] );
+}
+
 - (id) initWithCFHTTPMessageRef: (CFHTTPMessageRef) message
 {
 	if ( message == NULL )
@@ -96,7 +105,18 @@
 - (id) initAsRequest: (BOOL) asRequest
 {
 	CFHTTPMessageRef message = CFHTTPMessageCreateEmpty( kCFAllocatorDefault, asRequest );
-	return ( [self initWithCFHTTPMessageRef: message] );
+	self = [self initWithCFHTTPMessageRef: message];
+	CFRelease( message );
+	return ( self );
+}
+
+- (id) initResponseFromInputStream: (NSInputStream *) stream
+{
+	CFReadStreamRef s = (CFReadStreamRef)stream;
+	CFHTTPMessageRef message = (CFHTTPMessageRef)CFReadStreamCopyProperty(s, kCFStreamPropertyHTTPResponseHeader);
+	self = [self initWithCFHTTPMessageRef: message];
+	CFRelease( message );
+	return ( self );
 }
 
 - (void) dealloc
@@ -172,6 +192,19 @@
 {
 	NSURL * url = (NSURL *) NSMakeCollectable( CFHTTPMessageCopyRequestURL(_internal) );
 	return ( [url autorelease] );
+}
+
+- (BOOL) useGzipEncoding
+{
+    return ( [[self valueForHeaderField: @"Accept-Encoding"] isEqualToString: @"gzip"] );
+}
+
+- (void) setUseGzipEncoding: (BOOL) useGzip
+{/*
+    if ( useGzip )
+        [self setValue: @"gzip" forHeaderField: @"Accept-Encoding"];
+    else
+        [self setValue: nil forHeaderField: @"Accept-Encoding"];*/
 }
 
 - (NSData *) serializedMessage

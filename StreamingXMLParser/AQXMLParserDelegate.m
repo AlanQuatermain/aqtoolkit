@@ -184,6 +184,8 @@ static _AQXMLParserSelectorCache * __selectorCache = nil;
 {
 	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 	
+	//NSLog( @"Starting element: %@", elementName );
+	
 	SEL selector = [__selectorCache startSelectorForElement: elementName];
 	
     if ( [self respondsToSelector: selector] )

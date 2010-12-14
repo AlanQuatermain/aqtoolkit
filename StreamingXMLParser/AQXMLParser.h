@@ -46,7 +46,7 @@ extern NSString * const AQXMLParserParsingRunLoopMode;
 
 // delegates should implement the same functions used by AQXMLParser
 
-@interface AQXMLParser : NSObject
+@interface AQXMLParser : NSObject <NSStreamDelegate>
 {
 	void *                                  _parser;
 	id<AQXMLParserDelegate> __weak          _delegate;
@@ -91,6 +91,14 @@ extern NSString * const AQXMLParserParsingRunLoopMode;
 @property (nonatomic, readonly, retain) NSString * systemID;
 @property (nonatomic, readonly) NSInteger lineNumber;
 @property (nonatomic, readonly) NSInteger columnNumber;
+@property (NS_NONATOMIC_IPHONEONLY assign) BOOL debugLogInput;
+@end
+
+@class HTTPMessage;
+
+@interface AQXMLParser (AQXMLParserHTTPStreamAdditions)
+@property (nonatomic, readonly) HTTPMessage * finalRequest;
+@property (nonatomic, readonly) HTTPMessage * finalResponse;
 @end
 
 // parser reports progress as a value between 0.0 and 1.0

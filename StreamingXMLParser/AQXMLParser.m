@@ -39,6 +39,9 @@
 /* -I/usr/include/libxml -lxml */
 
 #import "AQXMLParser.h"
+#import "AQXMLParserInternal.h"
+
+#import "NSStream+HTTPMessage.h"
 
 #import <libxml/parser.h>
 #import <libxml/HTMLparser.h>
@@ -54,60 +57,11 @@
 # import <CoreServices/../Frameworks/CFNetwork.framework/Headers/CFNetwork.h>
 #endif
 
+#import "KBUserSettings.h"
+
+#define AUTO_DEBUG_LOG_INPUT 0
+
 NSString * const AQXMLParserParsingRunLoopMode = @"AQXMLParserParsingRunLoopMode";
-
-@interface _AQXMLParserInternal : NSObject
-{
-	@public
-    // parser structures -- these are actually the same for both XML & HTML
-	xmlSAXHandlerPtr	saxHandler;
-	xmlParserCtxtPtr	parserContext;
-	
-    // internal stuff
-    NSUInteger			parserFlags;
-	NSError *			error;
-	NSMutableArray *	namespaces;
-	BOOL				delegateAborted;
-    
-    // async parse callback data
-    id                  asyncDelegate;
-    SEL                 asyncSelector;
-    void *              asyncContext;
-    
-    // progress variables
-    float               expectedDataLength;
-    float               currentLength;
-    
-}
-@property (nonatomic, readonly) xmlSAXHandlerPtr xmlSaxHandler;
-@property (nonatomic, readonly) xmlParserCtxtPtr xmlParserContext;
-@property (nonatomic, readonly) htmlSAXHandlerPtr htmlSaxHandler;
-@property (nonatomic, readonly) htmlParserCtxtPtr htmlParserContext;
-@end
-
-@implementation _AQXMLParserInternal
-
-- (xmlSAXHandlerPtr) xmlSaxHandler
-{
-    return ( saxHandler );
-}
-
-- (xmlParserCtxtPtr) xmlParserContext
-{
-    return ( parserContext );
-}
-
-- (htmlSAXHandlerPtr) htmlSaxHandler
-{
-    return ( (htmlSAXHandlerPtr) saxHandler );
-}
-
-- (htmlParserCtxtPtr) htmlParserContext
-{
-    return ( (htmlParserCtxtPtr) parserContext );
-}
-
-@end
 
 enum
 {
@@ -757,6 +711,11 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 	
 	[self _initializeSAX2Callbacks];
 	
+#if AUTO_DEBUG_LOG_INPUT == 0
+	if ( [KBUserSettings logAllXML] )
+#endif
+		self.debugLogInput = YES;
+	
 	return ( self );
 }
 
@@ -773,6 +732,7 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 {
 	[_internal->error release];
 	[_internal->namespaces release];
+	[_internal->debugOutputStream release];
 	NSZoneFree( nil, _internal->saxHandler );
 	
 	if ( _internal->parserContext != NULL )
@@ -814,6 +774,29 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 	}
 	
 	[super finalize];
+}
+
+- (BOOL) debugLogInput
+{
+	return ( _internal->debugOutputStream != nil );
+}
+
+- (void) setDebugLogInput: (BOOL) value
+{
+	if ( value )
+	{
+		if ( _internal->debugOutputStream == nil )
+		{
+			_internal->debugOutputStream = [[NSOutputStream alloc] initToMemory];
+			[_internal->debugOutputStream open];
+		}
+	}
+	else if ( _internal->debugOutputStream != nil )
+	{
+		[_internal->debugOutputStream close];
+		[_internal->debugOutputStream release];
+		_internal->debugOutputStream = nil;
+	}
 }
 
 - (BOOL) shouldProcessNamespaces
@@ -892,20 +875,37 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
         return ( NO );
     }
 	
+	if ( _internal->delegateAborted )
+		return ( NO );
+	
 	// run in the common runloop modes while we read the data from the stream
-	do
+	_internal->waitingRunLoop = [NSRunLoop currentRunLoop];
+	
+	while ( _streamComplete == NO )
 	{
 		NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 		[[NSRunLoop currentRunLoop] runMode: AQXMLParserParsingRunLoopMode
-                                 beforeDate: [NSDate distantFuture]];
+                                 beforeDate: [NSDate dateWithTimeIntervalSinceNow: 1.0]];
 		[pool drain];
-		
-	} while ( _streamComplete == NO );
+	}
+	
+	_internal->waitingRunLoop = nil;
 	
 	[_stream setDelegate: nil];
 	[_stream removeFromRunLoop: [NSRunLoop currentRunLoop]
                        forMode: AQXMLParserParsingRunLoopMode];
 	[_stream close];
+	
+	if ( _internal->debugOutputStream != nil && [_internal->debugOutputStream streamStatus] != NSStreamStatusClosed )
+	{
+		NSString * str = [[NSString alloc] initWithData: [_internal->debugOutputStream propertyForKey: NSStreamDataWrittenToMemoryStreamKey]
+											   encoding: NSUTF8StringEncoding];
+		// DO NOT COMMENT OUT THIS LINE!!!!!!!!
+		// NO, REALLY--- STOP DOING IT!!!!!
+		NSLog( @"Response:\n%@", str );
+		[str release];
+		[_internal->debugOutputStream close];
+	}
 	
 	return ( _internal->error == nil );
 }
@@ -950,7 +950,7 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 
 - (void) stream: (NSStream *) stream handleEvent: (NSStreamEvent) streamEvent
 {
-	NSInputStream * input = (NSInputStream *) stream;
+	NSInputStream * input = (NSInputStream *) _stream;
 	
 	switch ( streamEvent )
 	{
@@ -960,7 +960,7 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 			
 		case NSStreamEventErrorOccurred:
 		{
-			_internal->error = [input streamError];
+			_internal->error = [[input streamError] retain];
 			if ( [_delegate respondsToSelector: @selector(parser:parseErrorOccurred:)] )
 				[_delegate parser: self parseErrorOccurred: _internal->error];
 			[self _setStreamComplete: NO];
@@ -971,6 +971,18 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 		{
 			xmlParseChunk( _internal->parserContext, NULL, 0, 1 );
 			[self _setStreamComplete: YES];
+			
+			if ( [_internal->debugOutputStream streamStatus] != NSStreamStatusClosed )
+			{
+				NSString * str = [[NSString alloc] initWithData: [_internal->debugOutputStream propertyForKey: NSStreamDataWrittenToMemoryStreamKey]
+													   encoding: NSUTF8StringEncoding];
+				// DO NOT COMMENT OUT THIS LINE!!!!!!!!
+				// NO, REALLY--- STOP DOING IT!!!!!
+				NSLog( @"Response:\n%@", str );
+				[str release];
+				[_internal->debugOutputStream close];
+			}
+			
 			break;
 		}
 			
@@ -982,7 +994,13 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 			uint8_t buf[1024];
 			int len = [input read: buf maxLength: 1024];
 			if ( len > 0 )
-                [self _pushXMLData: buf length: len];
+			{
+				char * found = strnstr( (char *)buf, "&#x13;", len );
+				if ( found != NULL )
+					memcpy( found, "[ARGH]", 6 );
+				
+				[self _pushXMLData: buf length: len];
+			}
 			
 			break;
 		}
@@ -991,12 +1009,16 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 
 - (void) abortParsing
 {
-	if ( _internal->parserContext == NULL )
-		return;
-	
 	_internal->delegateAborted = YES;
-	xmlStopParser( _internal->parserContext );
-    [self _setStreamComplete: NO];  // must tell any async delegates that we're done parsing
+	if ( _internal->parserContext != NULL )
+		xmlStopParser( _internal->parserContext );
+    
+	[self _setStreamComplete: NO];  // must tell any async delegates that we're done parsing
+	
+	// if there's no async delegate (i.e. if we are parsing synchronously) then explicitly wake the runloop
+	CFRunLoopRef rl = [_internal->waitingRunLoop getCFRunLoop];
+	if ( rl != NULL )
+		CFRunLoopWakeUp( rl );
 }
 
 - (NSError *) parserError
@@ -1035,6 +1057,21 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 }
 
 @end
+
+@implementation AQXMLParser (AQXMLParserHTTPStreamAdditions)
+
+- (HTTPMessage *) finalRequest
+{
+	return ( [_stream finalRequestMessage] );
+}
+
+- (HTTPMessage *) finalResponse
+{
+	return ( [_stream responseMessageHeader] );
+}
+
+@end
+
 
 @implementation AQXMLParser (Internal)
 
@@ -1166,6 +1203,9 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 
 - (void) _pushXMLData: (const void *) bytes length: (NSUInteger) length
 {
+	if ( _internal->debugOutputStream != nil )
+		[_internal->debugOutputStream write: bytes maxLength: length];
+	
     if ( _internal->parserContext == NULL )
     {
         [self _initializeParserWithBytes: bytes length: length];
@@ -1180,6 +1220,12 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
         
         if ( err != XML_ERR_OK )
         {
+			NSData * data = [[NSData alloc] initWithBytesNoCopy: (void *)bytes length: length freeWhenDone: NO];
+			NSString * str = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
+			NSLog( @"Error %d in bytes: %@ (str: %@)", err, data, str );
+			[str release];
+			[data release];
+			
             [self _setParserError: err];
             [self _setStreamComplete: NO];
         }
@@ -1188,8 +1234,8 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
     if ( _progressDelegate != nil )
     {
         _internal->currentLength += (float) length;
-        [_progressDelegate parser: self
-                   updateProgress: (_internal->currentLength / _internal->expectedDataLength)];
+        //[_progressDelegate parser: self
+        //           updateProgress: (_internal->currentLength / _internal->expectedDataLength)];
     }
 }
 

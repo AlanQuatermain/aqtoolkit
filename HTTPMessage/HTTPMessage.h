@@ -40,8 +40,10 @@
 
 #if TARGET_OS_IPHONE
 #import <CFNetwork/CFHTTPMessage.h>
+#import <CFNetwork/CFHTTPStream.h>
 #else
 #import <CoreServices/../Frameworks/CFNetwork.framework/Headers/CFHTTPMessage.h>
+#import <CoreServices/../Frameworks/CFNetwork.framework/Headers/CFHTTPStream.h>
 #endif
 
 #import "HTTPAuthentication.h"
@@ -57,10 +59,12 @@
 + (HTTPMessage *) responseMessageWithHTTPStatus: (NSInteger) statusCode
 									description: (NSString *) statusDescription
 										version: (NSString *) httpVersion;
++ (HTTPMessage *) responseMessageFromInputStream: (NSInputStream *) stream;
 
 // designated initializer
 - (id) initWithCFHTTPMessageRef: (CFHTTPMessageRef) messageRef;
 - (id) initAsRequest: (BOOL) isRequest;
+- (id) initResponseFromInputStream: (NSInputStream *) stream;
 
 // append data manually
 - (BOOL) appendData: (NSData *) messageData;
@@ -75,6 +79,8 @@
 
 @property (nonatomic, readonly, copy) NSString * requestMethod;
 @property (nonatomic, readonly, copy) NSURL * requestURL;
+
+@property (nonatomic, assign) BOOL useGzipEncoding;
 
 - (NSData *) serializedMessage;
 
