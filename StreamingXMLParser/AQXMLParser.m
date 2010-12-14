@@ -1249,7 +1249,8 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
     {
         @try
         {
-            NSInvocation * invoc = [NSInvocation invocationWithMethodSignature: [_internal->asyncDelegate methodSignatureForSelector: _internal->asyncSelector]];
+            NSMethodSignature * sig = [_internal->asyncDelegate methodSignatureForSelector: _internal->asyncSelector];
+            NSInvocation * invoc = [NSInvocation invocationWithMethodSignature: sig];
             
             [invoc setTarget: _internal->asyncDelegate];
             [invoc setSelector: _internal->asyncSelector];
