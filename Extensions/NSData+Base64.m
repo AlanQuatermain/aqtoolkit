@@ -40,6 +40,8 @@
 #import "NSData+Base64.h"
 #import "b64.h"
 
+@implementation NSData (Base64)
+
 + (NSData *) dataFromBase64String: (NSString *) base64String
 {
     NSData * charData = [base64String dataUsingEncoding: NSUTF8StringEncoding];
