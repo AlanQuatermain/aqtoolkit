@@ -94,6 +94,8 @@ VERSION HISTORY:
 #import "b64.h"
 #import <Foundation/Foundation.h>
 
+void decodeblock( unsigned char in[4], unsigned char out[3] );
+
 /*
 ** Translation Table as described in RFC1113
 */
