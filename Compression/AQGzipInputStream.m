@@ -108,7 +108,7 @@
 
 - (void) close
 {
-    if ( _internal.status == NSStreamStatusNotOpen )
+    if ( _internal.status == NSStreamStatusNotOpen || _internal.status == NSStreamStatusClosed )
         return;
     
     int err = inflateEnd( _internal.zStream );
