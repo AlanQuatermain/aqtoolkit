@@ -50,7 +50,7 @@
 
 @interface HTTPMessage : NSObject <NSCopying, NSMutableCopying>
 {
-	CFHTTPMessageRef __strong	_internal;
+	CFHTTPMessageRef _internal;
 }
 
 + (HTTPMessage *) requestMessageWithMethod: (NSString *) method

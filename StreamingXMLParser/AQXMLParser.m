@@ -472,7 +472,7 @@ static xmlEntityPtr __getEntity( void * ctx, const xmlChar * name )
 	entity = xmlSAX2GetEntity( p, name );
 	if ( entity != NULL )
 	{
-		if ( p->instate & XML_PARSER_MISC|XML_PARSER_PI|XML_PARSER_DTD )
+		if ( (p->instate & XML_PARSER_MISC)|XML_PARSER_PI|XML_PARSER_DTD )
 			p->_private = (void *) 1;
 		return ( entity );
 	}

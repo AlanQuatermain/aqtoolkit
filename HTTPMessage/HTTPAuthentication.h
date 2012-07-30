@@ -48,7 +48,7 @@
 
 @interface HTTPAuthentication : NSObject
 {
-	CFHTTPAuthenticationRef __strong	_internal;
+	CFHTTPAuthenticationRef	_internal;
 }
 
 + (HTTPAuthentication *) authenticationFromResponse: (HTTPMessage *) responseMessage;
