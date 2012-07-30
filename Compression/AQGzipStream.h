@@ -72,7 +72,7 @@ typedef NSInteger AQGzipCompressionLevel;
 //  need to be subclasses of different parents
 // My way around this is for each thing to *contain* a common instance, which stores
 //  all the common state information, etc.
-@interface AQGzipInputStream : NSInputStream <AQGzipMemoryStreamOptimisation>
+@interface AQGzipInputStream : NSInputStream <AQGzipMemoryStreamOptimisation, NSStreamDelegate>
 {
     NSInputStream *         _compressedDataStream;
     _AQGzipStreamInternal * _internal;
@@ -85,7 +85,7 @@ typedef NSInteger AQGzipCompressionLevel;
 
 @end
 
-@interface AQGzipOutputStream : NSOutputStream <AQGzipMemoryStreamOptimisation, AQGzipOutputCompressor>
+@interface AQGzipOutputStream : NSOutputStream <AQGzipMemoryStreamOptimisation, AQGzipOutputCompressor, NSStreamDelegate>
 {
     NSOutputStream *        _outputStream;
     _AQGzipStreamInternal * _internal;
