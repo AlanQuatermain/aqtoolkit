@@ -53,6 +53,9 @@
     NSError *           _error;
     NSStreamStatus      _status;
 }
+
+- (id) initWithPath: (NSString *) path;
+
 @end
 
 @interface AQGzipFileOutputStream : NSOutputStream <AQGzipOutputCompressor>
@@ -66,6 +69,9 @@
     NSStreamStatus          _status;
     AQGzipCompressionLevel  _level;
 }
+
+- (id) initWithPath: (NSString *) path;
+
 @end
 
 @implementation AQGzipInputStream (GzipFileInput)
@@ -475,7 +481,7 @@ static CFRunLoopSourceRef RunloopSourceForStream( NSStream * stream, mach_port_t
     
     NSString * modeStr = @"w";
     if ( _level != AQGzipCompressionLevelDefault )
-        modeStr = [[NSString alloc] initWithFormat: @"w%ld", _level];
+        modeStr = [[NSString alloc] initWithFormat: @"w%d", _level];
     
     _file = gzopen( [_path fileSystemRepresentation], [modeStr UTF8String] );
     [modeStr release];
