@@ -38,13 +38,8 @@
 
 #import <Foundation/Foundation.h>
 
-#if TARGET_OS_IPHONE
 #import <CFNetwork/CFHTTPMessage.h>
 #import <CFNetwork/CFHTTPStream.h>
-#else
-#import <CoreServices/../Frameworks/CFNetwork.framework/Headers/CFHTTPMessage.h>
-#import <CoreServices/../Frameworks/CFNetwork.framework/Headers/CFHTTPStream.h>
-#endif
 
 #import "HTTPAuthentication.h"
 

@@ -88,9 +88,9 @@
 		else if ( streamError.domain == kCFStreamErrorDomainNetDB )
 		{
 			domain = (NSString *) kCFErrorDomainCFNetwork;
-			[userInfo setObject: [NSString stringWithCString: gai_strerror(code) encoding: NSASCIIStringEncoding]
+			[userInfo setObject: [NSString stringWithCString: gai_strerror((int)code) encoding: NSASCIIStringEncoding]
 						 forKey: NSLocalizedDescriptionKey];
-			[userInfo setObject: [NSNumber numberWithInt: code]
+			[userInfo setObject: [NSNumber numberWithInt: (int)code]
 						 forKey: (NSString *)kCFGetAddrInfoFailureKey];
 		}
 		else if ( streamError.domain == kCFStreamErrorDomainNetServices )
