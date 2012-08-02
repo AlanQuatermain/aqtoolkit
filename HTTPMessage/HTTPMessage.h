@@ -110,6 +110,8 @@
 // if the input stream isn't required, just discard it immediately.
 - (NSInputStream *) inputStreamUsingStreamedBodyData: (NSInputStream *) bodyStream;
 
+- (NSURLRequest *)urlRequestRepresentation;
+
 @end
 
 // HTTP version string constants
