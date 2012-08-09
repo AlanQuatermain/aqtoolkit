@@ -386,9 +386,9 @@ int main (int argc, char * const argv[])
         [str release];
     }
     
-    if ( ([url isFileURL] == NO) &&
-         (([[url scheme] isEqualToString: @"http"] == NO) ||
-          ([[url scheme] isEqualToString: @"https"] == NO)) )
+    if ( [url isFileURL] == NO &&
+        [[url scheme] isEqualToString: @"http"] == NO &&
+        [[url scheme] isEqualToString: @"https"] == NO )
     {
         [pool drain];
         usage();        // dead call, terminates program
