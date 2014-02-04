@@ -200,11 +200,11 @@
 }
 
 - (void) setUseGzipEncoding: (BOOL) useGzip
-{/*
+{
     if ( useGzip )
         [self setValue: @"gzip" forHeaderField: @"Accept-Encoding"];
     else
-        [self setValue: nil forHeaderField: @"Accept-Encoding"];*/
+        [self setValue: nil forHeaderField: @"Accept-Encoding"];
 }
 
 - (NSData *) serializedMessage

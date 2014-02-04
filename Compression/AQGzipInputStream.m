@@ -108,7 +108,7 @@
 
 - (void) close
 {
-    if ( _internal.status == NSStreamStatusNotOpen )
+    if ( _internal.status == NSStreamStatusNotOpen || _internal.status == NSStreamStatusClosed )
         return;
     
     int err = inflateEnd( _internal.zStream );
@@ -182,7 +182,7 @@
                 
                 // attempt to decompress some data
                 status = inflate( _internal.zStream, Z_SYNC_FLUSH );
-                if ( status < Z_OK )
+                if ( status < Z_OK && status != Z_BUF_ERROR)
                 {
                     [stream close];
                     [_internal setZlibError: status];
