@@ -280,11 +280,11 @@ static void FixKeyLengths( CCAlgorithm algorithm, NSMutableData * keyData, NSMut
 	{
 		case kCCAlgorithmAES128:
 		{
-			if ( keyLength < 16 )
+			if ( keyLength <= 16 )
 			{
 				[keyData setLength: 16];
 			}
-			else if ( keyLength < 24 )
+			else if ( keyLength <= 24 )
 			{
 				[keyData setLength: 24];
 			}
@@ -310,7 +310,7 @@ static void FixKeyLengths( CCAlgorithm algorithm, NSMutableData * keyData, NSMut
 			
 		case kCCAlgorithmCAST:
 		{
-			if ( keyLength < 5 )
+			if ( keyLength <= 5 )
 			{
 				[keyData setLength: 5];
 			}
@@ -531,11 +531,45 @@ static void FixKeyLengths( CCAlgorithm algorithm, NSMutableData * keyData, NSMut
 	else
 		keyData = (NSData *) key;
 	
+	NSInteger digestLength = 0;
+	
+	switch (algorithm) {
+		case kCCHmacAlgSHA1:
+			digestLength = CC_SHA1_DIGEST_LENGTH;
+			break;
+			
+		case kCCHmacAlgMD5:
+			digestLength = CC_MD5_DIGEST_LENGTH;
+			break;
+			
+		case kCCHmacAlgSHA256:
+			digestLength = CC_SHA256_DIGEST_LENGTH;
+			break;
+			
+		case kCCHmacAlgSHA384:
+			digestLength = CC_SHA384_DIGEST_LENGTH;
+			break;
+			
+		case kCCHmacAlgSHA512:
+			digestLength = CC_SHA512_DIGEST_LENGTH;
+			break;
+			
+		case kCCHmacAlgSHA224:
+			digestLength = CC_SHA224_DIGEST_LENGTH;
+			break;
+			
+		default:
+			NSAssert(NO, @"Unkown CCHmacAlgorithm, could not detect digest length");
+			break;
+	}
+	
+	
 	// this could be either CC_SHA1_DIGEST_LENGTH or CC_MD5_DIGEST_LENGTH. SHA1 is larger.
-	unsigned char buf[CC_SHA1_DIGEST_LENGTH];
+	unsigned char buf[digestLength];
 	CCHmac( algorithm, [keyData bytes], [keyData length], [self bytes], [self length], buf );
 	
-	return ( [NSData dataWithBytes: buf length: (algorithm == kCCHmacAlgMD5 ? CC_MD5_DIGEST_LENGTH : CC_SHA1_DIGEST_LENGTH)] );
+	return ( [NSData dataWithBytes: buf length: digestLength] );
+
 }
 
 @end
