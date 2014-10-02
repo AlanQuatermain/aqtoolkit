@@ -92,4 +92,19 @@
 	return ( [[[ASLMessage alloc] initWithResponseMessage: m] autorelease] );
 }
 
+- (id)nextObject
+{
+    return [self next];
+}
+
+- (NSArray *)allObjects
+{
+    NSMutableArray * allObjects = [NSMutableArray array];
+    id msg;
+    while ((msg = [self next]))
+        [allObjects addObject:msg];
+    
+    return allObjects;
+}
+
 @end

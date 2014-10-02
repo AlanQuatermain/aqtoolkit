@@ -41,7 +41,7 @@
 
 @class ASLMessage, ASLQuery;
 
-@interface ASLResponse : NSObject
+@interface ASLResponse : NSEnumerator
 {
 	aslresponse	_response;
 }
