@@ -52,6 +52,7 @@
 + (ASLResponse *) responseWithResponse: (aslresponse) response;
 - (id) initWithResponse: (aslresponse) response;
 
+/// For backwards compatibility. You probably want to use the NSEnumerator methods or fast enumeration.
 - (ASLMessage *) next;
 
 @end
