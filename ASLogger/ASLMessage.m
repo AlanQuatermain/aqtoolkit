@@ -40,9 +40,6 @@
 #import "NSObject+Properties.h"
 #import "NSData+Base64.h"
 
-// yay for GC & objc_assign_global() !
-static NSDateFormatter * __formatter = nil;
-
 // asl.h doesn't define this, grrr....
 static const char * levelStrings[] = 
 {
@@ -154,16 +151,11 @@ static const char * levelStrings[] =
 		return ( nil );
 	
 	// convert to an NSDate
-	if ( __formatter == nil )
-	{
-		__formatter = [NSDateFormatter new];
-		[__formatter setFormatterBehavior: NSDateFormatterBehavior10_4];
-		
-		// date format is that used by ctime() - Thu Nov 24 18:22:48 1986
-		[__formatter setDateFormat: @"EEE MMM dd HH:mm:ss yyyy"];
-	}
-	
-	return ( [__formatter dateFromString: [NSString stringWithUTF8String: value]] );
+    NSInteger epochDate = [[NSString stringWithUTF8String:value] integerValue];
+    if (0 == epochDate)
+        return nil;
+    
+    return [NSDate dateWithTimeIntervalSince1970:epochDate];
 }
 
 - (NSHost *) host
