@@ -15,6 +15,7 @@ Pod::Spec.new do |s|
     ss.requires_arc = false
     ss.dependency 'AQToolkit/NSObject+Properties'
     ss.dependency 'AQToolkit/NSData+Base64'
+    ss.dependency 'AQToolkit/NSString+PropertyKVC'
   end
 
   s.subspec 'AQXMLParser' do |ss|
@@ -24,6 +25,10 @@ Pod::Spec.new do |s|
     ss.libraries = 'xml2'
   end
 
+  ##
+  ## Extension subspecs used by main AQToolkit classes
+  ##
+
   s.subspec 'NSObject+Properties' do |ss|
     ss.source_files = 'Extensions/NSObject+Properties.{h,m}'
     ss.requires_arc = false
@@ -32,6 +37,12 @@ Pod::Spec.new do |s|
 
   s.subspec 'NSData+Base64' do |ss|
     ss.source_files = 'Extensions/NSData+Base64.{h,m}', 'Extensions/b64.{h,m}'
+    ss.requires_arc = false
+    ss.framework = 'Foundation'
+  end
+
+  s.subspec 'NSString+PropertyKVC' do |ss|
+    ss.source_files = 'Extensions/NSString+PropertyKVC.{h,m}'
     ss.requires_arc = false
     ss.framework = 'Foundation'
   end
