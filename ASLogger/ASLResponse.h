@@ -41,7 +41,7 @@
 
 @class ASLMessage, ASLQuery;
 
-@interface ASLResponse : NSObject
+@interface ASLResponse : NSEnumerator
 {
 	aslresponse	_response;
 }
@@ -52,6 +52,7 @@
 + (ASLResponse *) responseWithResponse: (aslresponse) response;
 - (id) initWithResponse: (aslresponse) response;
 
+/// For backwards compatibility. You probably want to use the NSEnumerator methods or fast enumeration.
 - (ASLMessage *) next;
 
 @end

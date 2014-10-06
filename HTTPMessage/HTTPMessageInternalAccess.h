@@ -40,9 +40,9 @@
 #import "HTTPAuthentication.h"
 
 @interface HTTPMessage (InternalAccess)
-@property (nonatomic, readonly, assign) CFHTTPMessageRef __strong internalRef;
+@property (nonatomic, readonly, assign) CFHTTPMessageRef internalRef;
 @end
 
 @interface HTTPAuthentication (InternalAccess)
-@property (nonatomic, readonly, assign) CFHTTPAuthenticationRef __strong internalRef;
+@property (nonatomic, readonly, assign) CFHTTPAuthenticationRef internalRef;
 @end

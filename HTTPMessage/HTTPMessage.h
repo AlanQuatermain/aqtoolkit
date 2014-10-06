@@ -38,19 +38,14 @@
 
 #import <Foundation/Foundation.h>
 
-#if TARGET_OS_IPHONE
 #import <CFNetwork/CFHTTPMessage.h>
 #import <CFNetwork/CFHTTPStream.h>
-#else
-#import <CoreServices/../Frameworks/CFNetwork.framework/Headers/CFHTTPMessage.h>
-#import <CoreServices/../Frameworks/CFNetwork.framework/Headers/CFHTTPStream.h>
-#endif
 
 #import "HTTPAuthentication.h"
 
 @interface HTTPMessage : NSObject <NSCopying, NSMutableCopying>
 {
-	CFHTTPMessageRef __strong	_internal;
+	CFHTTPMessageRef _internal;
 }
 
 + (HTTPMessage *) requestMessageWithMethod: (NSString *) method
@@ -114,6 +109,8 @@
 // if you want/need to provide the message body as a stream, here's your lad.
 // if the input stream isn't required, just discard it immediately.
 - (NSInputStream *) inputStreamUsingStreamedBodyData: (NSInputStream *) bodyStream;
+
+- (NSURLRequest *)urlRequestRepresentation;
 
 @end
 

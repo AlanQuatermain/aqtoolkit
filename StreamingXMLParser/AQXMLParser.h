@@ -61,8 +61,8 @@ extern NSString * const AQXMLParserParsingRunLoopMode;
 
 - (id) initWithData: (NSData *) data;   // creates a stream from the data
 
-@property (NS_NONATOMIC_IPHONEONLY assign) id<AQXMLParserDelegate> __weak delegate;
-@property (NS_NONATOMIC_IPHONEONLY assign) id<AQXMLParserProgressDelegate> __weak progressDelegate;
+@property (NS_NONATOMIC_IPHONEONLY assign) id<AQXMLParserDelegate>  delegate;
+@property (NS_NONATOMIC_IPHONEONLY assign) id<AQXMLParserProgressDelegate>  progressDelegate;
 
 @property (NS_NONATOMIC_IPHONEONLY assign) BOOL shouldProcessNamespaces;
 @property (NS_NONATOMIC_IPHONEONLY assign) BOOL shouldReportNamespacePrefixes;

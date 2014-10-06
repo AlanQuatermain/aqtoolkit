@@ -48,15 +48,17 @@
 #import "AQXMLParser.h"
 #import "MemoryUsageLogger.h"
 #import "AQXMLParserDelegate.h"
+#import "AFNetworking/AFHTTPRequestOperation.h"
 
 static void usage( void ) __dead2;
 static const char * MemorySizeString( mach_vm_size_t size );
 
-static const char *     _shortCommandLineArgs = "f:u:ndmah";
+static const char *     _shortCommandLineArgs = "f:u:nsdmah";
 static struct option    _longCommandLineArgs[] = {
     { "file", required_argument, NULL, 'f'},
     { "url", required_argument, NULL, 'u' },
     { "nsxmlparser", no_argument, NULL, 'n' },
+    { "streamingnsxmlparser", no_argument, NULL, 's' },
     { "nsxmldocument", no_argument, NULL, 'd' },
     { "mapped-nsxmlparser", no_argument, NULL, 'm' },
     { "aqxmlparser", no_argument, NULL, 'a' },
@@ -67,6 +69,7 @@ static struct option    _longCommandLineArgs[] = {
 enum
 {
     Test_NSXMLParserWithURL,
+    Test_StreamingNSXMLParserWithURL,
     Test_NSXMLParserWithMappedData,
     Test_NSXMLDocument,
     Test_AQXMLParser
@@ -91,6 +94,7 @@ static void usage( void )
     fprintf( stderr, "    [-u|--url]=URL             URL for an XML file to load. Must not require\n"
                      "                               authentication to access.\n" );
     fprintf( stderr, "    [-n|--nsxmlparser          Run NSXMLParser test direct from URL.\n" );
+    fprintf( stderr, "    [-s|--streamingnsxmlparser Run NSXMLParser test direct from URL using an NSInputStream.\n" );
     fprintf( stderr, "    [-m|--mapped-nsxmlparser]  Run NSXMLParser test using mapped data\n" );
     fprintf( stderr, "    [-d|--nsxmldocument]       Run NSXMLDocument test direct from URL.\n" );
     fprintf( stderr, "    [-a|--aqxmlparser]         Run AQXMLParser test (default).\n" );
@@ -248,6 +252,29 @@ static void RunNSParserTest( NSURL * url )
     [parser release];
 }
 
+static NSInputStream * StreamFromURL( NSURL * url );
+
+static void RunStreamingNSParserTest( NSURL * url )
+{
+    NSXMLParser * parser = [[NSXMLParser alloc] initWithStream:StreamFromURL(url)];
+    NumberParser * delegate = [[NumberParser alloc] init];
+    [parser setDelegate: delegate];
+    
+    fprintf( stdout, "Testing NSXMLParser from URL using AFNetworking+NSOutputStream+NSInputStream...\n" );
+    
+    CFAbsoluteTime time = CFAbsoluteTimeGetCurrent();
+    delegate.startVMSize = GetProcessMemoryUsage();
+    
+    (void) [parser parse];
+    
+    time = CFAbsoluteTimeGetCurrent() - time;
+    fprintf( stdout, "  Parsed %lu numbers\n", (unsigned long)[delegate.set count] );
+    fprintf( stdout, "  %.02f seconds, peak VM usage: %s\n", time, MemorySizeString(delegate.maxVMSize) );
+    
+    [delegate release];
+    [parser release];
+}
+
 static NSData * MappedDataFromURL( NSURL * url )
 {
     if ( [url isFileURL] )
@@ -351,6 +378,10 @@ int main (int argc, char * const argv[])
                 test = Test_NSXMLParserWithURL;
                 break;
                 
+            case 's':
+                test = Test_StreamingNSXMLParserWithURL;
+                break;
+                
             case 'm':
                 test = Test_NSXMLParserWithMappedData;
                 break;
@@ -386,9 +417,9 @@ int main (int argc, char * const argv[])
         [str release];
     }
     
-    if ( ([url isFileURL] == NO) &&
-         (([[url scheme] isEqualToString: @"http"] == NO) ||
-          ([[url scheme] isEqualToString: @"https"] == NO)) )
+    if ( [url isFileURL] == NO &&
+        [[url scheme] isEqualToString: @"http"] == NO &&
+        [[url scheme] isEqualToString: @"https"] == NO )
     {
         [pool drain];
         usage();        // dead call, terminates program
@@ -402,6 +433,10 @@ int main (int argc, char * const argv[])
             
         case Test_NSXMLParserWithURL:
             RunNSParserTest( url );
+            break;
+            
+        case Test_StreamingNSXMLParserWithURL:
+            RunStreamingNSParserTest( url );
             break;
             
         case Test_NSXMLParserWithMappedData:

@@ -84,12 +84,27 @@
 	[super finalize];
 }
 
-- (ASLMessage *) next
+- (ASLMessage *) nextObject
 {
 	aslmsg m = aslresponse_next( _response );
 	if ( m == NULL )
 		return ( nil );
 	return ( [[[ASLMessage alloc] initWithResponseMessage: m] autorelease] );
+}
+
+- (id) next
+{
+    return [self nextObject];
+}
+
+- (NSArray *) allObjects
+{
+    NSMutableArray * allObjects = [NSMutableArray array];
+    id msg;
+    while ((msg = [self next]))
+        [allObjects addObject:msg];
+    
+    return allObjects;
 }
 
 @end

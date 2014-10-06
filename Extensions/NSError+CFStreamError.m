@@ -36,6 +36,9 @@
  *
  */
 
+#import <Foundation/Foundation.h>
+#import <netdb.h>		// for gai_strerror()
+
 // weak-link symbols from CoreServices/CFNetwork frameworks
 #pragma weak kCFStreamErrorDomainMach
 #pragma weak kCFStreamErrorDomainNetDB
@@ -47,9 +50,6 @@
 #pragma weak kCFErrorDomainCFNetwork
 
 // the other domains, and the error codes themselves, are enumerated types & therefore aren't linked
-
-#import <Foundation/Foundation.h>
-#import <netdb.h>		// for gai_strerror()
 
 #if TARGET_OS_IPHONE
 #import <CFNetwork/CFNetwork.h>
@@ -88,9 +88,9 @@
 		else if ( streamError.domain == kCFStreamErrorDomainNetDB )
 		{
 			domain = (NSString *) kCFErrorDomainCFNetwork;
-			[userInfo setObject: [NSString stringWithCString: gai_strerror(code) encoding: NSASCIIStringEncoding]
+			[userInfo setObject: [NSString stringWithCString: gai_strerror((int)code) encoding: NSASCIIStringEncoding]
 						 forKey: NSLocalizedDescriptionKey];
-			[userInfo setObject: [NSNumber numberWithInt: code]
+			[userInfo setObject: [NSNumber numberWithInt: (int)code]
 						 forKey: (NSString *)kCFGetAddrInfoFailureKey];
 		}
 		else if ( streamError.domain == kCFStreamErrorDomainNetServices )

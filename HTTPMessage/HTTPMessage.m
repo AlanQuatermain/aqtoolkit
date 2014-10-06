@@ -200,11 +200,11 @@
 }
 
 - (void) setUseGzipEncoding: (BOOL) useGzip
-{/*
+{
     if ( useGzip )
         [self setValue: @"gzip" forHeaderField: @"Accept-Encoding"];
     else
-        [self setValue: nil forHeaderField: @"Accept-Encoding"];*/
+        [self setValue: nil forHeaderField: @"Accept-Encoding"];
 }
 
 - (NSData *) serializedMessage
@@ -294,6 +294,25 @@
 	
 	NSInputStream * result = NSMakeCollectable( CFReadStreamCreateForStreamedHTTPRequest(kCFAllocatorDefault, _internal, (CFReadStreamRef)bodyStream) );
 	return ( [result autorelease] );
+}
+
+// snarfed from AFNetworking
+NSURLRequest * AQHTTPURLRequestForHTTPMessage(CFHTTPMessageRef message);
+NSURLRequest * AQHTTPURLRequestForHTTPMessage(CFHTTPMessageRef message)
+{
+    NSURL *messageURL = [NSMakeCollectable(CFHTTPMessageCopyRequestURL(message)) autorelease];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:messageURL];
+    [request setHTTPMethod:[NSMakeCollectable(CFHTTPMessageCopyRequestMethod(message)) autorelease]];
+    [request setAllHTTPHeaderFields:[NSMakeCollectable(CFHTTPMessageCopyAllHeaderFields(message)) autorelease]];
+    [request setHTTPBody:[NSMakeCollectable(CFHTTPMessageCopyBody(message)) autorelease]];
+    
+    return request;
+}
+
+- (NSURLRequest *)urlRequestRepresentation
+{
+    return AQHTTPURLRequestForHTTPMessage(self.internalRef);
 }
 
 @end

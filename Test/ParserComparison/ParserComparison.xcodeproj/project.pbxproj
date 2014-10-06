@@ -12,6 +12,16 @@
 		388BDF1B0F8AC591004A22FD /* AQXMLParserDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 388BDF1A0F8AC591004A22FD /* AQXMLParserDelegate.m */; };
 		388BDFA90F8ACD09004A22FD /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 388BDFA80F8ACD09004A22FD /* libxml2.dylib */; };
 		388BDFBD0F8ACDF8004A22FD /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 388BDFBC0F8ACDF8004A22FD /* CoreServices.framework */; };
+		64E1075015D34C0800DEB47F /* HTTPAuthentication.m in Sources */ = {isa = PBXBuildFile; fileRef = 64E1074A15D34C0800DEB47F /* HTTPAuthentication.m */; };
+		64E1075115D34C0800DEB47F /* HTTPMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 64E1074C15D34C0800DEB47F /* HTTPMessage.m */; };
+		64E1075215D34C0800DEB47F /* NSStream+HTTPMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 64E1074F15D34C0800DEB47F /* NSStream+HTTPMessage.m */; };
+		64E1075D15D34C1B00DEB47F /* b64.m in Sources */ = {isa = PBXBuildFile; fileRef = 64E1075415D34C1B00DEB47F /* b64.m */; };
+		64E1075E15D34C1B00DEB47F /* NSData+Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 64E1075615D34C1B00DEB47F /* NSData+Base64.m */; };
+		64E1075F15D34C1B00DEB47F /* NSError+CFStreamError.m in Sources */ = {isa = PBXBuildFile; fileRef = 64E1075815D34C1B00DEB47F /* NSError+CFStreamError.m */; };
+		64E1076015D34C1B00DEB47F /* NSObject+Properties.m in Sources */ = {isa = PBXBuildFile; fileRef = 64E1075A15D34C1B00DEB47F /* NSObject+Properties.m */; };
+		64E1076115D34C1B00DEB47F /* NSString+PropertyKVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 64E1075C15D34C1B00DEB47F /* NSString+PropertyKVC.m */; };
+		64E1076615D34C2C00DEB47F /* AQXMLParserInternal.m in Sources */ = {isa = PBXBuildFile; fileRef = 64E1076315D34C2C00DEB47F /* AQXMLParserInternal.m */; };
+		64E1076715D34C2C00DEB47F /* AQXMLParserWithTimeout.m in Sources */ = {isa = PBXBuildFile; fileRef = 64E1076515D34C2C00DEB47F /* AQXMLParserWithTimeout.m */; };
 		8DD76F9A0486AA7600D96B5E /* ParserComparison.m in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* ParserComparison.m */; settings = {ATTRIBUTES = (); }; };
 		8DD76F9C0486AA7600D96B5E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08FB779EFE84155DC02AAC07 /* Foundation.framework */; };
 		8DD76F9F0486AA7600D96B5E /* ParserComparison.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859EA3029092ED04C91782 /* ParserComparison.1 */; };
@@ -43,6 +53,27 @@
 		388BDF1A0F8AC591004A22FD /* AQXMLParserDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AQXMLParserDelegate.m; sourceTree = "<group>"; };
 		388BDFA80F8ACD09004A22FD /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		388BDFBC0F8ACDF8004A22FD /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
+		64E1074915D34C0800DEB47F /* HTTPAuthentication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPAuthentication.h; path = ../../HTTPMessage/HTTPAuthentication.h; sourceTree = "<group>"; };
+		64E1074A15D34C0800DEB47F /* HTTPAuthentication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HTTPAuthentication.m; path = ../../HTTPMessage/HTTPAuthentication.m; sourceTree = "<group>"; };
+		64E1074B15D34C0800DEB47F /* HTTPMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPMessage.h; path = ../../HTTPMessage/HTTPMessage.h; sourceTree = "<group>"; };
+		64E1074C15D34C0800DEB47F /* HTTPMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HTTPMessage.m; path = ../../HTTPMessage/HTTPMessage.m; sourceTree = "<group>"; };
+		64E1074D15D34C0800DEB47F /* HTTPMessageInternalAccess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPMessageInternalAccess.h; path = ../../HTTPMessage/HTTPMessageInternalAccess.h; sourceTree = "<group>"; };
+		64E1074E15D34C0800DEB47F /* NSStream+HTTPMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSStream+HTTPMessage.h"; path = "../../HTTPMessage/NSStream+HTTPMessage.h"; sourceTree = "<group>"; };
+		64E1074F15D34C0800DEB47F /* NSStream+HTTPMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSStream+HTTPMessage.m"; path = "../../HTTPMessage/NSStream+HTTPMessage.m"; sourceTree = "<group>"; };
+		64E1075315D34C1B00DEB47F /* b64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = b64.h; path = ../../Extensions/b64.h; sourceTree = "<group>"; };
+		64E1075415D34C1B00DEB47F /* b64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = b64.m; path = ../../Extensions/b64.m; sourceTree = "<group>"; };
+		64E1075515D34C1B00DEB47F /* NSData+Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSData+Base64.h"; path = "../../Extensions/NSData+Base64.h"; sourceTree = "<group>"; };
+		64E1075615D34C1B00DEB47F /* NSData+Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSData+Base64.m"; path = "../../Extensions/NSData+Base64.m"; sourceTree = "<group>"; };
+		64E1075715D34C1B00DEB47F /* NSError+CFStreamError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSError+CFStreamError.h"; path = "../../Extensions/NSError+CFStreamError.h"; sourceTree = "<group>"; };
+		64E1075815D34C1B00DEB47F /* NSError+CFStreamError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSError+CFStreamError.m"; path = "../../Extensions/NSError+CFStreamError.m"; sourceTree = "<group>"; };
+		64E1075915D34C1B00DEB47F /* NSObject+Properties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSObject+Properties.h"; path = "../../Extensions/NSObject+Properties.h"; sourceTree = "<group>"; };
+		64E1075A15D34C1B00DEB47F /* NSObject+Properties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSObject+Properties.m"; path = "../../Extensions/NSObject+Properties.m"; sourceTree = "<group>"; };
+		64E1075B15D34C1B00DEB47F /* NSString+PropertyKVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+PropertyKVC.h"; path = "../../Extensions/NSString+PropertyKVC.h"; sourceTree = "<group>"; };
+		64E1075C15D34C1B00DEB47F /* NSString+PropertyKVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+PropertyKVC.m"; path = "../../Extensions/NSString+PropertyKVC.m"; sourceTree = "<group>"; };
+		64E1076215D34C2C00DEB47F /* AQXMLParserInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AQXMLParserInternal.h; sourceTree = "<group>"; };
+		64E1076315D34C2C00DEB47F /* AQXMLParserInternal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AQXMLParserInternal.m; sourceTree = "<group>"; };
+		64E1076415D34C2C00DEB47F /* AQXMLParserWithTimeout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AQXMLParserWithTimeout.h; sourceTree = "<group>"; };
+		64E1076515D34C2C00DEB47F /* AQXMLParserWithTimeout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AQXMLParserWithTimeout.m; sourceTree = "<group>"; };
 		8DD76FA10486AA7600D96B5E /* ParserComparison */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ParserComparison; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6859EA3029092ED04C91782 /* ParserComparison.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = ParserComparison.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -75,6 +106,23 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				64E1075315D34C1B00DEB47F /* b64.h */,
+				64E1075415D34C1B00DEB47F /* b64.m */,
+				64E1075515D34C1B00DEB47F /* NSData+Base64.h */,
+				64E1075615D34C1B00DEB47F /* NSData+Base64.m */,
+				64E1075715D34C1B00DEB47F /* NSError+CFStreamError.h */,
+				64E1075815D34C1B00DEB47F /* NSError+CFStreamError.m */,
+				64E1075915D34C1B00DEB47F /* NSObject+Properties.h */,
+				64E1075A15D34C1B00DEB47F /* NSObject+Properties.m */,
+				64E1075B15D34C1B00DEB47F /* NSString+PropertyKVC.h */,
+				64E1075C15D34C1B00DEB47F /* NSString+PropertyKVC.m */,
+				64E1074915D34C0800DEB47F /* HTTPAuthentication.h */,
+				64E1074A15D34C0800DEB47F /* HTTPAuthentication.m */,
+				64E1074B15D34C0800DEB47F /* HTTPMessage.h */,
+				64E1074C15D34C0800DEB47F /* HTTPMessage.m */,
+				64E1074D15D34C0800DEB47F /* HTTPMessageInternalAccess.h */,
+				64E1074E15D34C0800DEB47F /* NSStream+HTTPMessage.h */,
+				64E1074F15D34C0800DEB47F /* NSStream+HTTPMessage.m */,
 				3824D5860FBF3A5F00F8E12D /* iPhoneNonatomic.h */,
 				388BDEFB0F8AAD12004A22FD /* StreamingXMLParser */,
 				32A70AAB03705E1F00C91783 /* ParserComparison_Prefix.pch */,
@@ -106,6 +154,10 @@
 		388BDEFB0F8AAD12004A22FD /* StreamingXMLParser */ = {
 			isa = PBXGroup;
 			children = (
+				64E1076215D34C2C00DEB47F /* AQXMLParserInternal.h */,
+				64E1076315D34C2C00DEB47F /* AQXMLParserInternal.m */,
+				64E1076415D34C2C00DEB47F /* AQXMLParserWithTimeout.h */,
+				64E1076515D34C2C00DEB47F /* AQXMLParserWithTimeout.m */,
 				388BDEFC0F8AAD12004A22FD /* AQXMLParser.h */,
 				388BDEFD0F8AAD12004A22FD /* AQXMLParser.m */,
 				388BDF190F8AC591004A22FD /* AQXMLParserDelegate.h */,
@@ -151,7 +203,11 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB927808733DD40010E9CD /* Build configuration list for PBXProject "ParserComparison" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				en,
+			);
 			mainGroup = 08FB7794FE84155DC02AAC07 /* ParserComparison */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -170,6 +226,16 @@
 				388BDEFE0F8AAD12004A22FD /* AQXMLParser.m in Sources */,
 				388BDF010F8AAD5F004A22FD /* MemoryUsageLogger.m in Sources */,
 				388BDF1B0F8AC591004A22FD /* AQXMLParserDelegate.m in Sources */,
+				64E1075015D34C0800DEB47F /* HTTPAuthentication.m in Sources */,
+				64E1075115D34C0800DEB47F /* HTTPMessage.m in Sources */,
+				64E1075215D34C0800DEB47F /* NSStream+HTTPMessage.m in Sources */,
+				64E1075D15D34C1B00DEB47F /* b64.m in Sources */,
+				64E1075E15D34C1B00DEB47F /* NSData+Base64.m in Sources */,
+				64E1075F15D34C1B00DEB47F /* NSError+CFStreamError.m in Sources */,
+				64E1076015D34C1B00DEB47F /* NSObject+Properties.m in Sources */,
+				64E1076115D34C1B00DEB47F /* NSString+PropertyKVC.m in Sources */,
+				64E1076615D34C2C00DEB47F /* AQXMLParserInternal.m in Sources */,
+				64E1076715D34C2C00DEB47F /* AQXMLParserWithTimeout.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -180,6 +246,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -196,6 +263,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -217,7 +285,7 @@
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
@@ -231,7 +299,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
 				PREBINDING = NO;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};
