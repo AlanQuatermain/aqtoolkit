@@ -118,8 +118,10 @@
 	// build a setter name
 	NSMutableString * str = [NSMutableString stringWithString: @"set"];
 	[str appendString: [[name substringToIndex: 1] uppercaseString]];
-	if ( [name length] > 1 )
+	if ( [name length] > 1 ) {
 		[str appendString: [name substringFromIndex: 1]];
+	}
+	[str appendString: @":"];
 	
 	if ( [self instancesRespondToSelector: NSSelectorFromString(str)] == NO )
 		[NSException raise: NSInternalInconsistencyException 
